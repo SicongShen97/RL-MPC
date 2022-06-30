@@ -1,0 +1,54 @@
+<mujoco>
+    <asset>
+        <texture type="skybox" builtin="gradient" rgb1="0.44 0.85 0.56" rgb2="0.46 0.87 0.58" width="32" height="32"></texture>
+        <material name="floor_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.2 0.2 0.2 1"></material>
+        <material name="table_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.93 0.93 0.93 1"></material>
+        <material name="block_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.2 0.2 0.2 1"></material>
+
+        <mesh name="link0" file="meshes/link0.stl" />
+        <mesh name="link1" file="meshes/link1.stl" />
+        <mesh name="link2" file="meshes/link2.stl" />
+        <mesh name="link3" file="meshes/link3.stl" />
+        <mesh name="link4" file="meshes/link4.stl" />
+        <mesh name="link5" file="meshes/link5.stl" />
+        <mesh name="link6" file="meshes/link6.stl" />
+        <mesh name="link7" file="meshes/link7.stl" />
+        <mesh name="link0_vis" file="meshes/link0_vis.stl" />
+        <mesh name="link1_vis" file="meshes/link1_vis.stl" />
+        <mesh name="link2_vis" file="meshes/link2_vis.stl" />
+        <mesh name="link3_vis" file="meshes/link3_vis.stl" />
+        <mesh name="link4_vis" file="meshes/link4_vis.stl" />
+        <mesh name="link5_vis" file="meshes/link5_vis.stl" />
+        <mesh name="link6_vis" file="meshes/link6_vis.stl" />
+        <mesh name="link7_vis" file="meshes/link7_vis.stl" />
+
+        <mesh name="hand" file="meshes/hand.stl" />
+        <mesh name="hand_vis" file="meshes/hand_vis.stl" />
+        <mesh name="finger" file="meshes/finger.stl" />
+        <mesh name="finger_vis" file="meshes/finger_vis.stl" />
+    </asset>
+    <actuator>
+        <!-- Physical limits of the actuator. -->
+<!--        <motor ctrllimited="true" ctrlrange="-80.0 80.0" joint="panda0_joint1" name="torq_j1"/>-->
+<!--        <motor ctrllimited="true" ctrlrange="-80.0 80.0" joint="panda0_joint2" name="torq_j2"/>-->
+<!--        <motor ctrllimited="true" ctrlrange="-80.0 80.0" joint="panda0_joint3" name="torq_j3"/>-->
+<!--        <motor ctrllimited="true" ctrlrange="-80.0 80.0" joint="panda0_joint4" name="torq_j4"/>-->
+<!--        <motor ctrllimited="true" ctrlrange="-80.0 80.0" joint="panda0_joint5" name="torq_j5"/>-->
+<!--        <motor ctrllimited="true" ctrlrange="-12.0 12.0" joint="panda0_joint6" name="torq_j6"/>-->
+<!--        <motor ctrllimited="true" ctrlrange="-12.0 12.0" joint="panda0_joint7" name="torq_j7"/>-->
+        <position name="panda0_joint1" joint="panda0_joint1" kp="870" forcerange="-87 87" ctrlrange="-2.9671 2.9671"/> <!-- velocity="2.1750" -->
+        <position name="panda0_joint2" joint="panda0_joint2" kp="870" forcerange="-87 87" ctrlrange="-1.8326 1.8326"/> <!-- velocity="2.1750" -->
+        <position name="panda0_joint3" joint="panda0_joint3" kp="870" forcerange="-87 87" ctrlrange="-2.9671 2.9671"/> <!-- velocity="2.1750" -->
+        <position name="panda0_joint4" joint="panda0_joint4" kp="870" forcerange="-87 87" ctrlrange="-3.1416 0.0"/> <!-- velocity="2.1750" -->
+        <position name="panda0_joint5" joint="panda0_joint5" kp="120" forcerange="-12 12" ctrlrange="-2.9671 2.9671"/> <!-- velocity="2.6100" -->
+        <position name="panda0_joint6" joint="panda0_joint6" kp="120" forcerange="-12 12" ctrlrange="-1.66 2.1817"/> <!-- velocity="2.6100" -->
+        <position name="panda0_joint7" joint="panda0_joint7" kp="120" forcerange="-12 12" ctrlrange="-2.9671 2.9671"/> <!-- velocity="2.9671" -->
+
+        <position ctrllimited="true" ctrlrange="0.0 0.04" joint="finger_joint1" kp="1000" name="gripper_finger_joint1" forcelimited="true" forcerange="-20 20"/>
+        <position ctrllimited="true" ctrlrange="0.0 0.04" joint="finger_joint2" kp="1000" name="gripper_finger_joint2" forcelimited="true" forcerange="-20 20"/>
+    </actuator>
+    <sensor>
+        <force name="force_ee" site="ft_frame"/>
+        <torque name="torque_ee" site="ft_frame"/>
+    </sensor>
+</mujoco>
