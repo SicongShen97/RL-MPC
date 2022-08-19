@@ -1,7 +1,7 @@
 /*
 FORCESNLPsolver1_1 : A fast customized optimization solver.
 
-Copyright (C) 2013-2021 EMBOTECH AG [info@embotech.com]. All rights reserved.
+Copyright (C) 2013-2022 EMBOTECH AG [info@embotech.com]. All rights reserved.
 
 
 This software is intended for simulation and testing purposes only. 
@@ -80,7 +80,7 @@ void copyMValueToC_FORCESNLPsolver1_1(double * src, FORCESNLPsolver1_1_float * d
 
 
 
-extern void (FORCESNLPsolver1_1_float *x, FORCESNLPsolver1_1_float *y, FORCESNLPsolver1_1_float *l, FORCESNLPsolver1_1_float *p, FORCESNLPsolver1_1_float *f, FORCESNLPsolver1_1_float *nabla_f, FORCESNLPsolver1_1_float *c, FORCESNLPsolver1_1_float *nabla_c, FORCESNLPsolver1_1_float *h, FORCESNLPsolver1_1_float *nabla_h, FORCESNLPsolver1_1_float *hess, solver_int32_default stage, solver_int32_default iteration, solver_int32_default threadID);
+extern solver_int32_default (FORCESNLPsolver1_1_float *x, FORCESNLPsolver1_1_float *y, FORCESNLPsolver1_1_float *l, FORCESNLPsolver1_1_float *p, FORCESNLPsolver1_1_float *f, FORCESNLPsolver1_1_float *nabla_f, FORCESNLPsolver1_1_float *c, FORCESNLPsolver1_1_float *nabla_c, FORCESNLPsolver1_1_float *h, FORCESNLPsolver1_1_float *nabla_h, FORCESNLPsolver1_1_float *hess, solver_int32_default stage, solver_int32_default iteration, solver_int32_default threadID);
 FORCESNLPsolver1_1_extfunc pt2function_FORCESNLPsolver1_1 = &;
 
 

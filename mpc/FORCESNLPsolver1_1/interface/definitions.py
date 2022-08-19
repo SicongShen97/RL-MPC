@@ -28,24 +28,25 @@ outputs = \
 # Info Struct Fields
 info = \
 [('it', ctypes.c_int),
-('it2opt', ctypes.c_int),
-('res_eq', ctypes.c_double),
-('res_ineq', ctypes.c_double),
-('rsnorm', ctypes.c_double),
-('rcompnorm', ctypes.c_double),
-('pobj', ctypes.c_double),
-('dobj', ctypes.c_double),
-('dgap', ctypes.c_double),
-('rdgap', ctypes.c_double),
-('mu', ctypes.c_double),
-('mu_aff', ctypes.c_double),
-('sigma', ctypes.c_double),
-('lsit_aff', ctypes.c_int),
-('lsit_cc', ctypes.c_int),
-('step_aff', ctypes.c_double),
-('step_cc', ctypes.c_double),
-('solvetime', ctypes.c_double),
-('fevalstime', ctypes.c_double)
+ ('it2opt', ctypes.c_int),
+ ('res_eq', ctypes.c_double),
+ ('res_ineq', ctypes.c_double),
+ ('rsnorm', ctypes.c_double),
+ ('rcompnorm', ctypes.c_double),
+ ('pobj', ctypes.c_double),
+ ('dobj', ctypes.c_double),
+ ('dgap', ctypes.c_double),
+ ('rdgap', ctypes.c_double),
+ ('mu', ctypes.c_double),
+ ('mu_aff', ctypes.c_double),
+ ('sigma', ctypes.c_double),
+ ('lsit_aff', ctypes.c_int),
+ ('lsit_cc', ctypes.c_int),
+ ('step_aff', ctypes.c_double),
+ ('step_cc', ctypes.c_double),
+ ('solvetime', ctypes.c_double),
+ ('fevalstime', ctypes.c_double),
+ ('solver_id', ctypes.c_int * 8)
 ]
 
 # Dynamics dimensions

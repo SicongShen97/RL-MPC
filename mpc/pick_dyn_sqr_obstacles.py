@@ -23,6 +23,7 @@ from mpc.mpc_common import extract_parameters, make_obs, get_args
 
 def continuous_dynamics(x, u, p):
     # calculate dx/dt
+    # x = [x, y, z, vx, vy, vz], u=[Fx, Fy, Fz]
     return casadi.vertcat(x[3],
                           x[4],
                           0,
@@ -33,6 +34,7 @@ def continuous_dynamics(x, u, p):
 
 
 def objective(z, p):
+    # z = [Fx, Fy, Fz, soften, x, y, z, vx, vy, vz]
     u = z[0:4]
     x = z[4:10]
     acc_x_rel = u[0] / 30.0
@@ -44,6 +46,7 @@ def objective(z, p):
 
 
 def objectiveN(z, p):
+    # z = [Fx, Fy, Fz, soften, x, y, z, vx, vy, vz]
     u = z[0:4]
     x = z[4:10]
     vel_x_rel = x[3]
@@ -57,6 +60,8 @@ def S(a, x1, x2):
     return t / b
 
 def inequality_constraints(z, p):
+    # z = [Fx, Fy, Fz, soften, x, y, z, vx, vy, vz]
+    # p = [subgoal(3), goal(3), obst1(6), obst2(6)]
     u = z[0:4]
     x = z[4:10]
 
@@ -90,6 +95,7 @@ def generate_pathplanner(create=True, path=''):
     # Problem dimensions
     model = forcespro.nlp.SymbolicModel()
     model.N = 8  # horizon length
+    # z = [Fx, Fy, Fz, soften, x, y, z, vx, vy, vz]
     model.nvar = 10  # number of variables
     model.neq = 6  # number of equality constraints
     model.nh = 3    # number of nonlinear inequality constraints
@@ -103,7 +109,7 @@ def generate_pathplanner(create=True, path=''):
 
     model.E = np.concatenate([np.zeros((6, 4)), np.eye(6)], axis=1)
 
-    grip_w = 0 #0.045
+    grip_w = 0.045
 
     # Inequality constraints
     #                   [ ax,     ay,    az,   relax         xPos,         yPos,          zPos    xVel, yVel, zVel]
@@ -158,7 +164,9 @@ def generate_pathplanner(create=True, path=''):
 
 def main():
     from mpc.plot import MPCDebugPlot
+    from mpc.plot_small import MPCDebugPlotSmall
     args = get_args()
+    args.mpc_gen = False
     args.env = 'FetchPickDynSqrObstacle-v1'
     # generate code for estimator
     model, solver, codeoptions = generate_pathplanner(create=args.mpc_gen)
@@ -194,7 +202,6 @@ def main():
     x0 = np.reshape(x0i, (10, 1))
     pred = np.repeat(x0, model.N, axis=1)  # first prediction corresponds to initial guess
     parameters = extract_parameters(goal, goal, t, dt, model.N, dyn_obstacles, vels, shifts, pos_difs, stat_obstacles)
-
     obs = make_obs(parameters[0])  # simulate real obstacle positions
     debug_plot.createPlot(xinit=xinit, pred_x=pred[4:10], pred_u=pred[0:4], k=0, parameters=parameters, obs=obs)
 
@@ -211,7 +218,6 @@ def main():
         problem["all_parameters"] = np.reshape(parameters, (model.npar * model.N, 1))
 
         print('Solve ', k, problem["xinit"])
-        print(parameters[0])
 
         output, exitflag, info = solver.solve(problem)
         if exitflag != 1:

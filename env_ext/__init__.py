@@ -33,5 +33,5 @@ def clip_return_range(args):
         'FetchPickDynObstaclesEnv-v2': (gamma_sum_min, gamma_sum_max),
         'FetchPickDynLiftedObstaclesEnv-v1': (gamma_sum_min, gamma_sum_max),
         'FetchPickDynObstaclesMaxEnv-v1': (gamma_sum_min, gamma_sum_max),
-        'FrankaFetchPickDynSqrObstacle-v1' :(gamma_sum_min, gamma_sum_max)
+        'FrankaFetchPickDynSqrObstacle-v1': (gamma_sum_min, gamma_sum_max)
     }[args.env]

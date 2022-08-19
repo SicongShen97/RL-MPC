@@ -1,6 +1,6 @@
 /*
- * CasADi to FORCESPRO Template - missing information to be filled in by createCasadi.m 
- * (C) embotech AG, Zurich, Switzerland, 2013-2021. All rights reserved.
+ * AD tool to FORCESPRO Template - missing information to be filled in by createADTool.m 
+ * (C) embotech AG, Zurich, Switzerland, 2013-2022. All rights reserved.
  *
  * This file is part of the FORCESPRO client, and carries the same license.
  */ 
@@ -20,7 +20,7 @@ extern "C" {
 
 
 /* copies data from sparse matrix into a dense one */
-static void sparse2fullcopy(solver_int32_default nrow, solver_int32_default ncol, const solver_int32_default *colidx, const solver_int32_default *row, FORCESNLPsolver1_1_callback_float *data, FORCESNLPsolver1_1_float *out)
+static void FORCESNLPsolver1_1_sparse2fullcopy(solver_int32_default nrow, solver_int32_default ncol, const solver_int32_default *colidx, const solver_int32_default *row, FORCESNLPsolver1_1_callback_float *data, FORCESNLPsolver1_1_float *out)
 {
     solver_int32_default i, j;
     
@@ -37,8 +37,8 @@ static void sparse2fullcopy(solver_int32_default nrow, solver_int32_default ncol
 
 
 
-/* CasADi to FORCESPRO interface */
-extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,        /* primal vars                                         */
+/* AD tool to FORCESPRO interface */
+extern solver_int32_default FORCESNLPsolver1_1_adtool2forces(FORCESNLPsolver1_1_float *x,        /* primal vars                                         */
                                  FORCESNLPsolver1_1_float *y,        /* eq. constraint multiplers                           */
                                  FORCESNLPsolver1_1_float *l,        /* ineq. constraint multipliers                        */
                                  FORCESNLPsolver1_1_float *p,        /* parameters                                          */
@@ -53,15 +53,15 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
 								 solver_int32_default iteration, /* iteration number of solver                         */
 								 solver_int32_default threadID   /* Id of caller thread                                */)
 {
-    /* CasADi input and output arrays */
+    /* AD tool input and output arrays */
     const FORCESNLPsolver1_1_callback_float *in[4];
     FORCESNLPsolver1_1_callback_float *out[7];
 	
 
-	/* Allocate working arrays for CasADi */
+	/* Allocate working arrays for AD tool */
 	FORCESNLPsolver1_1_float w[13];
 	
-    /* temporary storage for CasADi sparse output */
+    /* temporary storage for AD tool sparse output */
     FORCESNLPsolver1_1_callback_float this_f;
     FORCESNLPsolver1_1_float nabla_f_sparse[7];
     FORCESNLPsolver1_1_float h_sparse[3];
@@ -71,11 +71,11 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
             
     
     /* pointers to row and column info for 
-     * column compressed format used by CasADi */
+     * column compressed format used by AD tool */
     solver_int32_default nrow, ncol;
     const solver_int32_default *colind, *row;
     
-    /* set inputs for CasADi */
+    /* set inputs for AD tool */
     in[0] = x;
     in[1] = p;
     in[2] = l;
@@ -94,7 +94,7 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
 			ncol = FORCESNLPsolver1_1_objective_0_sparsity_out(1)[1];
 			colind = FORCESNLPsolver1_1_objective_0_sparsity_out(1) + 2;
 			row = FORCESNLPsolver1_1_objective_0_sparsity_out(1) + 2 + (ncol + 1);
-			sparse2fullcopy(nrow, ncol, colind, row, nabla_f_sparse, nabla_f);
+			FORCESNLPsolver1_1_sparse2fullcopy(nrow, ncol, colind, row, nabla_f_sparse, nabla_f);
 		}
 		
 		FORCESNLPsolver1_1_rkfour_0(x, p, c, nabla_c, FORCESNLPsolver1_1_cdyn_0rd_0, FORCESNLPsolver1_1_cdyn_0, threadID);
@@ -108,7 +108,7 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
 			ncol = FORCESNLPsolver1_1_inequalities_0_sparsity_out(0)[1];
 			colind = FORCESNLPsolver1_1_inequalities_0_sparsity_out(0) + 2;
 			row = FORCESNLPsolver1_1_inequalities_0_sparsity_out(0) + 2 + (ncol + 1);
-			sparse2fullcopy(nrow, ncol, colind, row, h_sparse, h);
+			FORCESNLPsolver1_1_sparse2fullcopy(nrow, ncol, colind, row, h_sparse, h);
 		}
 		if( nabla_h )
 		{
@@ -116,7 +116,7 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
 			ncol = FORCESNLPsolver1_1_inequalities_0_sparsity_out(1)[1];
 			colind = FORCESNLPsolver1_1_inequalities_0_sparsity_out(1) + 2;
 			row = FORCESNLPsolver1_1_inequalities_0_sparsity_out(1) + 2 + (ncol + 1);
-			sparse2fullcopy(nrow, ncol, colind, row, nabla_h_sparse, nabla_h);
+			FORCESNLPsolver1_1_sparse2fullcopy(nrow, ncol, colind, row, nabla_h_sparse, nabla_h);
 		}
 	}
 	if ((7 == stage))
@@ -132,7 +132,7 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
 			ncol = FORCESNLPsolver1_1_objective_1_sparsity_out(1)[1];
 			colind = FORCESNLPsolver1_1_objective_1_sparsity_out(1) + 2;
 			row = FORCESNLPsolver1_1_objective_1_sparsity_out(1) + 2 + (ncol + 1);
-			sparse2fullcopy(nrow, ncol, colind, row, nabla_f_sparse, nabla_f);
+			FORCESNLPsolver1_1_sparse2fullcopy(nrow, ncol, colind, row, nabla_f_sparse, nabla_f);
 		}
 		
 		out[0] = h_sparse;
@@ -144,7 +144,7 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
 			ncol = FORCESNLPsolver1_1_inequalities_1_sparsity_out(0)[1];
 			colind = FORCESNLPsolver1_1_inequalities_1_sparsity_out(0) + 2;
 			row = FORCESNLPsolver1_1_inequalities_1_sparsity_out(0) + 2 + (ncol + 1);
-			sparse2fullcopy(nrow, ncol, colind, row, h_sparse, h);
+			FORCESNLPsolver1_1_sparse2fullcopy(nrow, ncol, colind, row, h_sparse, h);
 		}
 		if( nabla_h )
 		{
@@ -152,7 +152,7 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
 			ncol = FORCESNLPsolver1_1_inequalities_1_sparsity_out(1)[1];
 			colind = FORCESNLPsolver1_1_inequalities_1_sparsity_out(1) + 2;
 			row = FORCESNLPsolver1_1_inequalities_1_sparsity_out(1) + 2 + (ncol + 1);
-			sparse2fullcopy(nrow, ncol, colind, row, nabla_h_sparse, nabla_h);
+			FORCESNLPsolver1_1_sparse2fullcopy(nrow, ncol, colind, row, nabla_h_sparse, nabla_h);
 		}
 	}
     
@@ -161,6 +161,8 @@ extern void FORCESNLPsolver1_1_casadi2forces(FORCESNLPsolver1_1_float *x,       
     {
         *f += ((FORCESNLPsolver1_1_float) this_f);
     }
+
+    return 0;
 }
 
 #ifdef __cplusplus

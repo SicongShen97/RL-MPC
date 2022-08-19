@@ -4,6 +4,7 @@ from env_ext import make_env
 from algorithm.replay_buffer import goal_based_process
 from mpc import MPCDebugPlot
 from policies import MPCPolicy, RLPolicy, Policy, make_policy
+from policies import RLPolicy, make_policy, Policy
 from common import get_args
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 from envs import register_custom_envs
@@ -13,7 +14,7 @@ import sys
 class Player:
     policy: Policy = None
     debug_plot: MPCDebugPlot = None
-    #debug_plot: MPCDebugPlotSmall = None
+    # debug_plot: MPCDebugPlotSmall = None
     mpc_policy = False
 
     def __init__(self, args):
@@ -65,7 +66,7 @@ class Player:
                 actions, infos = self.policy.predict(obs=[ob])
                 action = actions[0]
                 ob, _, _, env_info = env.step(action)
-
+                print("action", action)
                 if self.mpc_policy:
                     info = infos[0]
                     # sys.stderr.write("FORCESPRO took {} iterations and {} seconds to solve the problem.\n" \
@@ -165,4 +166,5 @@ if __name__ == "__main__":
     # Call play.py in order to see current policy progress
     args = get_args()
     player = Player(args)
-    player.record_video(raw_path="/home/ssc/bachelor-thesis/videos/rollouts_{}_{}".format(args.env, args.play_policy))
+    player.play()
+    # player.record_video(raw_path="/home/ssc/bachelor-thesis/videos/rollouts_{}_{}".format(args.env, args.play_policy))

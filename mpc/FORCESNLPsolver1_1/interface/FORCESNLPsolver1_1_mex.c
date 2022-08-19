@@ -1,7 +1,7 @@
 /*
 FORCESNLPsolver1_1 : A fast customized optimization solver.
 
-Copyright (C) 2013-2021 EMBOTECH AG [info@embotech.com]. All rights reserved.
+Copyright (C) 2013-2022 EMBOTECH AG [info@embotech.com]. All rights reserved.
 
 
 This software is intended for simulation and testing purposes only. 
@@ -25,6 +25,7 @@ jurisdiction in case of any dispute.
 #include "mex.h"
 #include "math.h"
 #include "../include/FORCESNLPsolver1_1.h"
+#include "../include/FORCESNLPsolver1_1_memory.h"
 #ifndef SOLVER_STDIO_H
 #define SOLVER_STDIO_H
 #include <stdio.h>
@@ -57,9 +58,34 @@ void copyMValueToC_double(double * src, double * dest)
 	*dest = (double) *src;
 }
 
+/* copy functions */
+
+void copyCArrayToM_solver_int32_default(solver_int32_default *src, double *dest, solver_int32_default dim) 
+{
+    solver_int32_default i;
+    for( i = 0; i < dim; i++ ) 
+    {
+        *dest++ = (double)*src++;
+    }
+}
+
+void copyMArrayToC_solver_int32_default(double *src, solver_int32_default *dest, solver_int32_default dim) 
+{
+    solver_int32_default i;
+    for( i = 0; i < dim; i++ ) 
+    {
+        *dest++ = (solver_int32_default) (*src++) ;
+    }
+}
+
+void copyMValueToC_solver_int32_default(double * src, solver_int32_default * dest)
+{
+	*dest = (solver_int32_default) *src;
+}
 
 
-extern void (FORCESNLPsolver1_1_float *x, FORCESNLPsolver1_1_float *y, FORCESNLPsolver1_1_float *l, FORCESNLPsolver1_1_float *p, FORCESNLPsolver1_1_float *f, FORCESNLPsolver1_1_float *nabla_f, FORCESNLPsolver1_1_float *c, FORCESNLPsolver1_1_float *nabla_c, FORCESNLPsolver1_1_float *h, FORCESNLPsolver1_1_float *nabla_h, FORCESNLPsolver1_1_float *hess, solver_int32_default stage, solver_int32_default iteration, solver_int32_default threadID);
+
+extern solver_int32_default (FORCESNLPsolver1_1_float *x, FORCESNLPsolver1_1_float *y, FORCESNLPsolver1_1_float *l, FORCESNLPsolver1_1_float *p, FORCESNLPsolver1_1_float *f, FORCESNLPsolver1_1_float *nabla_f, FORCESNLPsolver1_1_float *c, FORCESNLPsolver1_1_float *nabla_c, FORCESNLPsolver1_1_float *h, FORCESNLPsolver1_1_float *nabla_h, FORCESNLPsolver1_1_float *hess, solver_int32_default stage, solver_int32_default iteration, solver_int32_default threadID);
 FORCESNLPsolver1_1_extfunc pt2function_FORCESNLPsolver1_1 = &;
 
 
@@ -67,6 +93,7 @@ FORCESNLPsolver1_1_extfunc pt2function_FORCESNLPsolver1_1 = &;
 static FORCESNLPsolver1_1_params params;
 static FORCESNLPsolver1_1_output output;
 static FORCESNLPsolver1_1_info info;
+static FORCESNLPsolver1_1_mem * mem;
 
 /* THE mex-function */
 void mexFunction( solver_int32_default nlhs, mxArray *plhs[], solver_int32_default nrhs, const mxArray *prhs[] )  
@@ -83,7 +110,7 @@ void mexFunction( solver_int32_default nlhs, mxArray *plhs[], solver_int32_defau
 	solver_int32_default exitflag;
 	const solver_int8_default *fname;
 	const solver_int8_default *outputnames[8] = {"x1","x2","x3","x4","x5","x6","x7","x8"};
-	const solver_int8_default *infofields[10] = { "it", "it2opt", "res_eq", "res_ineq",  "rsnorm",  "rcompnorm",  "pobj",  "mu",  "solvetime",  "fevalstime"};
+	const solver_int8_default *infofields[11] = { "it", "it2opt", "res_eq", "res_ineq", "rsnorm", "rcompnorm", "pobj", "mu", "solvetime", "fevalstime", "solver_id"};
 	
 	/* Check for proper number of arguments */
     if (nrhs != 1)
@@ -101,6 +128,12 @@ void mexFunction( solver_int32_default nlhs, mxArray *plhs[], solver_int32_defau
 		mexErrMsgTxt("PARAMS must be a structure.");
 	}
 	 
+
+    /* initialize memory */
+    if (mem == NULL)
+    {
+        mem = FORCESNLPsolver1_1_internal_mem(0);
+    }
 
 	/* copy parameters into the right location */
 	par = mxGetField(PARAMS, 0, "xinit");
@@ -176,7 +209,8 @@ void mexFunction( solver_int32_default nlhs, mxArray *plhs[], solver_int32_defau
 	#endif
 
 	/* call solver */
-	exitflag = FORCESNLPsolver1_1_solve(&params, &output, &info, fp, pt2function_FORCESNLPsolver1_1);
+
+	exitflag = FORCESNLPsolver1_1_solve(&params, &output, &info, mem, fp, pt2function_FORCESNLPsolver1_1);
 	
 	#if SET_PRINTLEVEL_FORCESNLPsolver1_1 > 0
 		/* Read contents of printfs printed to file */
@@ -234,7 +268,7 @@ void mexFunction( solver_int32_default nlhs, mxArray *plhs[], solver_int32_defau
 	/* copy info struct */
 	if( nlhs > 2 )
 	{
-	        plhs[2] = mxCreateStructMatrix(1, 1, 10, infofields);
+	        plhs[2] = mxCreateStructMatrix(1, 1, 11, infofields);
          
 		
 		/* iterations */
@@ -286,6 +320,11 @@ void mexFunction( solver_int32_default nlhs, mxArray *plhs[], solver_int32_defau
 		outvar = mxCreateDoubleMatrix(1, 1, mxREAL);
 		*mxGetPr(outvar) = info.fevalstime;
 		mxSetField(plhs[2], 0, "fevalstime", outvar);
+
+		/* solver ID */
+		outvar = mxCreateDoubleMatrix(8, 1, mxREAL);
+		copyCArrayToM_solver_int32_default(info.solver_id, mxGetPr(outvar), 8);
+		mxSetField(plhs[2], 0, "solver_id", outvar);	
 
 	}
 }

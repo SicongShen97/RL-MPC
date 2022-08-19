@@ -1,7 +1,7 @@
 /*
 FORCESNLPsolver1_1 : A fast customized optimization solver.
 
-Copyright (C) 2013-2021 EMBOTECH AG [info@embotech.com]. All rights reserved.
+Copyright (C) 2013-2022 EMBOTECH AG [info@embotech.com]. All rights reserved.
 
 
 This software is intended for simulation and testing purposes only. 
@@ -32,6 +32,7 @@ jurisdiction in case of any dispute.
 
 /* include FORCESPRO functions and defs */
 #include "../include/FORCESNLPsolver1_1.h" 
+#include "../include/FORCESNLPsolver1_1_memory.h" 
 
 /* SYSTEM INCLUDES FOR TIMING ------------------------------------------ */
 
@@ -45,7 +46,7 @@ jurisdiction in case of any dispute.
 
 typedef FORCESNLPsolver1_1interface_float FORCESNLPsolver1_1nmpc_float;
 
-extern void (double *x, double *y, double *l, double *p, double *f, double *nabla_f, double *c, double *nabla_c, double *h, double *nabla_h, double *hess, solver_int32_default stage, solver_int32_default iteration, solver_int32_default threadID);
+extern solver_int32_default (double *x, double *y, double *l, double *p, double *f, double *nabla_f, double *c, double *nabla_c, double *h, double *nabla_h, double *hess, solver_int32_default stage, solver_int32_default iteration, solver_int32_default threadID);
 FORCESNLPsolver1_1_extfunc pt2function_FORCESNLPsolver1_1 = &;
 
 
@@ -208,7 +209,8 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 	/* Solver data */
 	static FORCESNLPsolver1_1_params params;
 	static FORCESNLPsolver1_1_output output;
-	static FORCESNLPsolver1_1_info info;	
+	static FORCESNLPsolver1_1_info info;
+    static FORCESNLPsolver1_1_mem * mem;
 	solver_int32_default exitflag;
 
 	/* Extra NMPC data */
@@ -244,8 +246,13 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 		rewind(fp);
 	#endif
 
+    if (mem == NULL)
+    {
+        mem = FORCESNLPsolver1_1_internal_mem(0);
+    }
+
 	/* Call solver */
-	exitflag = FORCESNLPsolver1_1_solve(&params, &output, &info, fp , pt2function_FORCESNLPsolver1_1);
+	exitflag = FORCESNLPsolver1_1_solve(&params, &output, &info, mem, fp , pt2function_FORCESNLPsolver1_1);
 
 	#if SET_PRINTLEVEL_FORCESNLPsolver1_1 > 0
 		/* Read contents of printfs printed to file */

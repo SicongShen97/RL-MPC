@@ -90,8 +90,8 @@ class MPCDebugPlot:
         # Plot trajectory
         ax_pos = fig.add_subplot(gs[:, 0])
         # l0, = ax_pos.plot(np.transpose(path_points[0, :]), np.transpose(path_points[1, :]), 'rx')
-        l11, = plt.plot(parameters[0][3], parameters[0][4], 'bo') # main goal
-        l1, = plt.plot(parameters[0][0], parameters[0][1], 'kx') # subgoal
+        l11, = ax_pos.plot(parameters[0][3], parameters[0][4], 'bo') # main goal
+        l1, = ax_pos.plot(parameters[0][0], parameters[0][1], 'kx') # subgoal
         plt.title('Position', fontsize=16)
         # plt.axis('equal')
         plt.xlim([1.05, 1.55])
@@ -394,5 +394,5 @@ class MPCDebugPlot:
         ax_list[9].plot(x[1, 0:k + 2], x[2, 0:k + 2], '-b')  # plot new trajectory
         ax_list[9].plot(pred_x[1, 1:], pred_x[2, 1:], 'g-')  # plot new prediction of trajectory
 
-        plt.pause(0.25)
+        plt.pause(0.5)
 

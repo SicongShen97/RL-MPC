@@ -1,6 +1,6 @@
 #FORCESNLPsolver1_1 : A fast customized optimization solver.
 #
-#Copyright (C) 2013-2021 EMBOTECH AG [info@embotech.com]. All rights reserved.
+#Copyright (C) 2013-2022 EMBOTECH AG [info@embotech.com]. All rights reserved.
 #
 #
 #This software is intended for simulation and testing purposes only. 
@@ -57,6 +57,6 @@ else:
 				
 # create libraries
 libdir = os.path.join(os.getcwd(),"FORCESNLPsolver1_1","lib")
-exportsymbols = ["%s_solve" % "FORCESNLPsolver1_1"]
+exportsymbols = ["%s_solve" % "FORCESNLPsolver1_1", "%s_internal_mem" % "FORCESNLPsolver1_1"]
 c.create_static_lib(objects, "FORCESNLPsolver1_1", output_dir=libdir)
 c.link_shared_lib(objects, "FORCESNLPsolver1_1", output_dir=libdir, export_symbols=exportsymbols)

@@ -77,6 +77,15 @@ def get_args():
 	parser.add_argument('--show_goals', help='number of goals to show', type=np.int32, default=0)
 
 	args = parser.parse_args()
+
+	# customize #
+	args.env = "FrankaFetchPickDynSqrObstacle-v1"
+	args.play_policy = "MPCPolicy"
+	args.play_path = "FrankaSqrObs-log"
+	args.play_epoch = "best"
+	args.goal = "mpc"
+	args.env_n_substeps = 2
+	####
 	args.num_vertices = [args.n_x, args.n_y, args.n_z]
 	args.goal_based = (args.env in Robotics_envs_id)
 	args.clip_return_l, args.clip_return_r = clip_return_range(args)

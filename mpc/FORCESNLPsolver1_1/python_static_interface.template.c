@@ -6,7 +6,7 @@
  * The template is used by setting the following preprocessor macros:
  *  - FORCESNLPsolver1_1
  *  - "include/FORCESNLPsolver1_1.h"
- *  - FORCESNLPsolver1_1_casadi2forces
+ *  - FORCESNLPsolver1_1_adtool2forces
  *  - FORCESNLPsolver1_1_interface
  *
  * Compare also the MEX interface, which exists for a similar purpose in the
@@ -20,12 +20,12 @@
 #include "include/FORCESNLPsolver1_1.h"
 
 /* Header of external evaluation function */
-void FORCESNLPsolver1_1_casadi2forces(SOLVER_FLOAT *x, SOLVER_FLOAT *y, SOLVER_FLOAT *l,
+solver_int32_default FORCESNLPsolver1_1_adtool2forces(SOLVER_FLOAT *x, SOLVER_FLOAT *y, SOLVER_FLOAT *l,
                    SOLVER_FLOAT *p, SOLVER_FLOAT *f, SOLVER_FLOAT *nabla_f,
                    SOLVER_FLOAT *c, SOLVER_FLOAT *nabla_c, SOLVER_FLOAT *h,
                    SOLVER_FLOAT *nabla_h, SOLVER_FLOAT *hess,
                    solver_int32_default stage, solver_int32_default iteration, solver_int32_default threadID);
 
-int FORCESNLPsolver1_1_interface(void *params, void *outputs, void *info, FILE *fp) {
-    return SOLVER_FUN_NAME(params, outputs, info, fp, &FORCESNLPsolver1_1_casadi2forces);
+int FORCESNLPsolver1_1_interface(void *params, void *outputs, void *info, void *mem, FILE *fp) {
+    return SOLVER_FUN_NAME(params, outputs, info, mem, fp, &FORCESNLPsolver1_1_adtool2forces);
 }
