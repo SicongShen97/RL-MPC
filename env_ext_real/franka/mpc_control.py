@@ -6,7 +6,7 @@ from .vanilla import VanillaGoalEnv
 class MPCControlGoalEnv(VanillaGoalEnv):
     total_reward = 0
     collisions = 0
-    obj_distance_threshold = 0.001
+    obj_distance_threshold = 0.01
 
     def __init__(self, args):
         VanillaGoalEnv.__init__(self, args)

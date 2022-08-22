@@ -1,46 +1,43 @@
 from envs_real import register_custom_envs
 from env_ext_real import make_env
-from common import get_args
+from common_real import get_args
+from policies import make_policy
 #
 register_custom_envs()
 args = get_args()
 args.env = "FrankaPickDynSqrObstacle-v1"
+args.play_path = "log/ddpg2-FrankaPickDynSqrObstacle-v1-hgg"
+args.play_policy = "RLPolicy"
 env = make_env(args)
-# env.disable_action_limit()
-# env.reset()
-# pre = None
-# pre_grip = None
-# for i in range(250):
-#     env.render()
-#     action = [0, 0.01, 0, 0]
-#     obs, reward, done, info = env.step(action)
-#     grip_pos = env.sim.data.get_site_xpos('grip_site')
-#     if pre is not None:
-#         print("delta:", obs["observation"][:3] - pre)
-#         print("calculated vel:", (obs["observation"][:3] - pre) / env.dt)
-#         print("delta of grip site:", grip_pos - pre_grip)
-#         print("obs vel:", env.sim.data.get_site_xvelp('o'))
-#         # print("grip_pos:", grip_pos)
-#         # print("pre_grip:", pre_grip)
-#     pre_grip = grip_pos.copy()
-#     pre = obs["observation"][:3]
-#     print("grip vel:", env.sim.data.get_site_xvelp('grip_site'))
-#     # print("obs_vel:", )
-#     print("-"*20)
-
-# from envs_real.franka.franka_pick_dyn_sqr_obstacle import FrankaFetchPickDynSqrObstacleEnv
-# from envs.fetch.franka_pick_dyn_sqr_obstacle import FrankaFetchPickDynSqrObstacleEnv
 import time
 # env = FrankaFetchPickDynSqrObstacleEnv()
-env.reset()
-action = [0, 0, 1, 0]
+policy = make_policy(args)
+policy.set_envs(envs=[env])
+obs = env.reset()
+# print(obs['achieved_goal'])
+# print(obs["observation"])
+action = [1, -1, 0, 0]
 pre_obs = None
 pre_grip = None
-for _ in range(1):
-    print(env.env)
-    # env.render()
-    # obs, reward, done, info = env.step(action)
+t1 = time.time()
+for i in range(200):
+    # print(env.env)
+
+    actions, infos = policy.predict(obs=[obs])
+    # print(actions)
+    action = actions[0]
+    print("action:", action)
+    obs, reward, done, info = env.step(action)
+    env.render()
     # time.sleep(1)
+    # print(info)
+    # print(obs["observation"])
+    # print("obs['object_dis']", obs['object_dis'])
+    # if info['Success'] == 1.0:
+    #     print(i)
+    #     break
+    # print(obs["observation"][-3:])
+print(time.time() - t1)
     # obs_pos = env.sim.data.get_site_xpos('o')
     # grip_pos = obs["observation"][:3]
     # if pre_obs is not None:

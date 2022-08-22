@@ -27,7 +27,7 @@ class Trajectory:
 
 	def energy(self, env_id, w_potential=1.0, w_linear=1.0, w_rotational=1.0):
 		# from "Energy-Based Hindsight Experience Prioritization"
-		if env_id[:5]=='Fetch' or env_id[:11]=='FrankaFetch':
+		if env_id[:5]=='Fetch' or env_id[:6] == 'Franka':
 			obj = []
 			for i in range(len(self.ep['obs'])):
 				obj.append(self.ep['obs'][i]['achieved_goal'])

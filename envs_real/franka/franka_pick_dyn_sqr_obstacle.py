@@ -65,9 +65,9 @@ class FrankaPickDynSqrObstacleEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         self.target_range_x = 0.15
         self.target_range_y = 0.02
         # self.distance_threshold = 0.05
-        self.distance_threshold = 0.005
+        self.distance_threshold = 0.01
         self.reward_type = reward_type
-        self.limit_action = 0.004    # limit maximum change in position
+        self.limit_action = 0.01    # limit maximum change in position
 
         self.field = [1.235, 0.75, 0.6, 0.165, 0.35, 0.2]  # real env
         self.dyn_obstacles = [[1.235, 0.903, 0.411, 0.015, 0.017, 0.01]]  # real env
@@ -85,7 +85,7 @@ class FrankaPickDynSqrObstacleEnv(robot_env.RobotEnv, gym.utils.EzPickle):
     def _setup_dyn_obstacles(self):
 
         # setup velocity limits
-        self.vel_lims = np.array([0.01, 0.1])  # real env
+        self.vel_lims = np.array([0.02, 0.03])  # real env
         self.n_moving_obstacles = len(self.obstacles)
         self.n_obstacles = len(self.dyn_obstacles)
         self.current_obstacle_vels = []

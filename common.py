@@ -84,7 +84,7 @@ def get_args():
 	args.play_path = "FrankaSqrObs-log"
 	args.play_epoch = "best"
 	args.goal = "mpc"
-	args.env_n_substeps = 2
+	args.env_n_substeps = 20
 	####
 	args.num_vertices = [args.n_x, args.n_y, args.n_z]
 	args.goal_based = (args.env in Robotics_envs_id)
