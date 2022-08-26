@@ -8,3 +8,9 @@ def register_custom_envs():
         max_episode_steps=100,
         kwargs={'reward_type': 'sparse', 'n_substeps': 20},
     )
+    gym.envs.register(
+        id='FrankaPickDynSqrObstacles-v1',
+        entry_point='envs_real:FrankaPickDynSqrObstaclesEnv',
+        max_episode_steps=100,
+        kwargs={'reward_type': 'sparse', 'n_substeps': 20},
+    )

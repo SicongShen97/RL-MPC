@@ -19,5 +19,5 @@ def clip_return_range(args):
     gamma_sum_min = args.reward_min / (1.0 - args.gamma)
     gamma_sum_max = args.reward_max / (1.0 - args.gamma)
     return {
-        'FrankaPickDynSqrObstacle-v1': (gamma_sum_min, gamma_sum_max),
+        'FrankaPickDynSqrObstacles-v1': (gamma_sum_min, gamma_sum_max),
     }[args.env]

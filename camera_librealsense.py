@@ -27,26 +27,42 @@ class Camera:
         return color_image
 
     def get_distance(self, frame, add_to_frame=True):
-        center, frame = self.get_centers(frame, add_to_frame=True)
-        dist = np.linalg.norm(center[0] - center[1], ord=2)
-        self.ids = self.ids.flatten()
-        i = np.where(self.ids == 22)
-        corner = self.corners[i[0][0]].reshape((4, 2))
-        (topLeft, topRight, bottomRight, bottomLeft) = corner
-        pixel_len = (abs(topLeft[0] - topRight[0]) + abs(bottomLeft[0] - bottomRight[0])) / 2
-        length_per_pixel = 0.024 / pixel_len
-        real_distance = np.round(dist*length_per_pixel, 3)
+        centers, frame = self.get_centers(frame, add_to_frame=True)
+        # get idx
+        ids = list(self.ids)
+        bottom_stat_idx = ids.index(22)
+        bottom_dyn_idx = ids.index(32)
+        top_stat_idx = ids.index(2)
+        top_dyn_idx = ids.index(12)
+
+        dist_bottom = np.linalg.norm(centers[bottom_stat_idx] - centers[bottom_dyn_idx], ord=2)
+        # dist_bottom = np.abs(centers[bottom_stat_idx][0] - centers[bottom_dyn_idx][0])
+        dist_top = np.linalg.norm(centers[top_stat_idx] - centers[top_dyn_idx], ord=2)
+        # dist_top = np.abs(centers[top_stat_idx][0] - centers[top_dyn_idx][0])
+        dists = [dist_bottom, dist_top]
+        indexs = [bottom_stat_idx, top_stat_idx]
+        real_distances = []
+        for i in range(len(indexs)):
+            corner = self.corners[indexs[i]].reshape((4, 2))
+            (topLeft, topRight, bottomRight, bottomLeft) = corner
+            pixel_len = (abs(topLeft[0] - topRight[0]) + abs(bottomLeft[0] - bottomRight[0])) / 2
+            length_per_pixel = 0.024 / pixel_len
+            real_distances.append(np.round(dists[i]*length_per_pixel, 3))
 
         if add_to_frame:
-            cv.line(frame, center[0], center[1], (255, 0, 0), 2)
-            cv.putText(frame, str(real_distance),
-                       (int((center[0][0] + center[1][0]) / 2), center[0][1] - 15), cv.FONT_HERSHEY_SIMPLEX, 0.5,
-                       (0, 0, 255), 2)
-        return real_distance, frame
+            ids = [bottom_stat_idx, bottom_dyn_idx, top_stat_idx, top_dyn_idx]
+            for i in range(len(ids) // 2):
+                cv.line(frame, centers[ids[2*i]], centers[ids[2*i+1]], (255, 0, 0), 2)
+                cv.putText(frame, str(real_distances[i]),
+                           (int((centers[2*i][0] + centers[2*i+1][0]) / 2), centers[2*i][1] - 15), cv.FONT_HERSHEY_SIMPLEX, 0.5,
+                           (0, 0, 255), 2)
+        return np.array(real_distances), frame
 
     def get_centers(self, frame, add_to_frame=True):
         (self.corners, self.ids, rejected) = cv.aruco.detectMarkers(frame, self.arucoDict, parameters=self.arucoParams)
         centers = []
+        self.ids = self.ids.flatten()
+        # assert len(self.ids) >= 4, "Not all Arucos detected!!!"
         for i in range(len(self.corners)):
             corner = self.corners[i].reshape((4, 2))
             (topLeft, topRight, bottomRight, bottomLeft) = corner
@@ -69,6 +85,7 @@ class Camera:
             if add_to_frame:
                 cv.circle(frame, (cX, cY), 4, (0, 0, 255), -1)
             centers.append([cX, cY])
+            # centers[self.ids[i]] = np.array([cX, cY])
         return np.array(centers), frame
 
     def stop(self):

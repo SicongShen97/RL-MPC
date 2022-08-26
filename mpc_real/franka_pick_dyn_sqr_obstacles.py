@@ -100,14 +100,14 @@ def generate_pathplanner(create=True, path=''):
     # -----------------
 
     # Set solver options
-    codeoptions = forcespro.CodeOptions('FrankaFORCESNLPsolver_two_obs')
+    codeoptions = forcespro.CodeOptions('FrankaFORCESNLPsolver_dyn_sqr_obsts')
     codeoptions.printlevel = 0
     codeoptions.overwrite = 1
 
     if create:
         solver = model.generate_solver(options=codeoptions)
     else:
-        solver = forcespro.nlp.Solver.from_directory(path + "FrankaFORCESNLPsolver_two_obs")
+        solver = forcespro.nlp.Solver.from_directory(path + "FrankaFORCESNLPsolver_dyn_sqr_obsts")
 
     return model, solver, codeoptions
 
@@ -121,29 +121,31 @@ def main():
     # Simulation
     # ----------
     # Variables for storing simulation data
-    goal = np.array([0.45 + 0.8, -0.0 + 0.75])  # relative to robot base [0.45, -0.0]
+    goal = np.array([0.5 + 0.8, -0.3 + 0.75])  # relative to robot base [0.5, -0.3]
     t = 0
     dt = 0.5   # real env set
-    vels = np.array([0.02, 0.02])   # real env set
-    pos_dif = np.array([0.22, 0.22])  # real env set
-    center_x = 0.435 + 0.8  # real env set
+    vels = np.array([0.02, 0.03])   # real env set
+    pos_dif = 0.1  # real env set
+    center_x = 0.5 + 0.8  # real env set
     # dyn pos from camera
     frame_init = camera.get_frame()
-    dist, _ = camera.get_distance(frame_init, add_to_frame=False)
-    dist -= 0.041  # relative to origin
-    dyn_obstacles = np.array([[dist - pos_dif + 0.435 + 0.8, 0.153 + 0.75, 0.015, 0.017]])   # pose relative to robot base[0.435, 0.153]
+    dists, _ = camera.get_distance(frame_init, add_to_frame=False)
+    offsets = np.array([0.042, 0.04])
+    dists -= offsets  # relative to origin
+    dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8,  0.1 + 0.75, 0.015, 0.017],
+                              [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.015, 0.017]])   # pose relative to robot base[0.435, 0.153]
 
     sim_length = 180
 
     # Set runtime parameters
     # ----------
     # Set initial state value
-    xinit = np.array([0.45 + 0.8, 0.35 + 0.75])   # relative to robot base [0.45, 0.35]
+    xinit = np.array([0.5 + 0.8, 0.3 + 0.75])   # relative to robot base [0.45, 0.35]
     x0i = np.zeros(5)
     x0i[3:5] = xinit
     x0 = np.reshape(x0i, (5, 1))
     pred = np.repeat(x0, model.N, axis=1)  # first prediction corresponds to initial guess
-    parameters = extract_parameters(goal, goal, dt, model.N, dyn_obstacles, vel, pos_dif, center_x)
+    parameters = extract_parameters(goal, goal, dt, model.N, dyn_obstacles, vels, pos_dif, center_x)
     obs = make_obs(parameters[0])  # simulate real obstacle positions
 
     problem = {"x0": pred,
@@ -153,24 +155,26 @@ def main():
     debug_plot.createPlot(xinit=xinit, pred_x=pred[3:5], pred_u=pred[0:2], k=0, parameters=parameters, obs=obs)
 
     sim_timestep = 0
-    pre_dist = None
-    sign = 1
+    pre_dists = np.array([None, None])
+    signs = np.array([1, 1])
+    # input("Start to move obstacles.")
     for k in range(sim_length):
         t1 = time.time()
         # dyn pos from camera
         frame = camera.get_frame()
-        dist, _ = camera.get_distance(frame, add_to_frame=False)
-        dist -= 0.041  # real env set
-        if pre_dist:
-            sign = np.sign(dist - pre_dist)
-        pre_dist = dist
-        dyn_obstacles = np.array([[dist - pos_dif + 0.435 + 0.8, 0.153 + 0.75, 0.015, 0.017]])
+        dists, _ = camera.get_distance(frame, add_to_frame=False)
+        dists -= offsets  # real env set
+        if pre_dists.any():
+            signs = np.sign(dists - pre_dists)
+        pre_dists = dists
+        dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8,  0.1 + 0.75, 0.015, 0.017],
+                                  [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.015, 0.017]])
         # move initial position to solve problem further
         problem["xinit"] = xinit
 
-        parameters = extract_parameters(goal, goal, dt, model.N, dyn_obstacles, vel*sign, pos_dif, center_x)
-        print(parameters)
-        print('*'*20)
+        parameters = extract_parameters(goal, goal, dt, model.N, dyn_obstacles, vels*signs, pos_dif, center_x)
+        # print(parameters)
+        # print('*'*20)
         problem["all_parameters"] = np.reshape(parameters, (model.npar * model.N, 1))
 
         # call the solver
@@ -199,8 +203,8 @@ def main():
         # change problem statement
         t += dt
         sim_timestep = sim_timestep + 1
-
-        plt.pause(dt - (time.time() - t1))
+        if dt - (time.time() - t1) > 0:
+            plt.pause(dt - (time.time() - t1))
         print("time", time.time() - t1)
 
 if __name__ == '__main__':

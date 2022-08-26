@@ -66,11 +66,11 @@ class MPCDebugPlot:
         ax_pos.plot(xinit[0], xinit[1], 'bx')   # initial pose
         ax_pos.plot(parameters[0][0], parameters[0][1], 'kx')  # subgoal
 
-        obst_sz = model.hl[0] - 0.035
+        obst_sz = [model.hl[0] - 0.035, model.hl[1] - 0.035]
         N = parameters.shape[0]
 
         # Draw obstacles
-        real_obstacles = list(obs['real_obstacle_info'][::-1])
+        real_obstacles = list(obs['real_obstacle_info'])
 
         for i in range(len(real_obstacles)):
             # real obstacle shape
@@ -85,8 +85,11 @@ class MPCDebugPlot:
         for i in range(N - 1):
             # draw convex hull
             p = parameters[i]
-            bbox = (p[4], p[5], obst_sz*2, obst_sz*2)
-            ellipse(bbox, fill=False, linestyle=":", edgecolor='blue' if i == 0 else 'green',
+            bbox1 = (p[4], p[5], obst_sz[0]*2, obst_sz[0]*2)
+            bbox2 = (p[8], p[9], obst_sz[1]*2, obst_sz[1]*2)
+            ellipse(bbox1, fill=False, linestyle=":", edgecolor='blue' if i == 0 else 'green',
+                    alpha=(1.0 - i / N))
+            ellipse(bbox2, fill=False, linestyle=":", edgecolor='blue' if i == 0 else 'green',
                     alpha=(1.0 - i / N))
 
         # Plot action dx
@@ -130,11 +133,12 @@ class MPCDebugPlot:
         params = parameters[1]
         # Move obstacles
         rectangles = list(filter(lambda obj: type(obj) is matplotlib.patches.Rectangle, ax_list[0].get_children()))
-        real_obstacles = list(ob['real_obstacle_info'][::-1])
+        real_obstacles = list(ob['real_obstacle_info'])
 
         for i in range(len(real_obstacles)):
             obj = rectangles[i]
             obst = real_obstacles[i]
+            print()
             obj.set_xy((obst[0] - obst[2], obst[1] - obst[3]))
         obj = rectangles[i + 1]
         obj.set_xy((next_x[0] - self.grip[0], next_x[1] - self.grip[1]))
@@ -144,6 +148,7 @@ class MPCDebugPlot:
         obstacles = []
         for p in parameters[1:]:
             obstacles.append([p[4], p[5]])
+            obstacles.append([p[8], p[9]])
 
         # Draw original and predicted obstacles
         for z in zip(ellipses, obstacles):

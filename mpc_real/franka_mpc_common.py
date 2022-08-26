@@ -22,22 +22,22 @@ def back_forth(a, s, v, t):
     return 2 * a / math.pi * math.asin(math.sin(s * math.pi / (2*a) + 2 * math.pi / p * t))
 
 
-def move_obstacles(t, obstacles, vel, pos_dif, x_center):
+def move_obstacles(t, obstacles, vels, pos_dif, x_center):
     new_obstacles = []
     for i in range(obstacles.shape[0]):
         pre_rel_x_pos = obstacles[i][0] - x_center
-        cur_rel_x_pos = back_forth(pos_dif, pre_rel_x_pos, vel, t)
+        cur_rel_x_pos = back_forth(pos_dif, pre_rel_x_pos, vels[i], t)
         ob = obstacles[i].copy()
         ob[0] = cur_rel_x_pos + x_center
         new_obstacles.append(ob)
     return np.array(new_obstacles)
 
 
-def extract_parameters(subgoal, goal, dt, N, obstacles, vel, pos_dif, x_center):
+def extract_parameters(subgoal, goal, dt, N, obstacles, vels, pos_dif, x_center):
     goals = np.append(subgoal, goal)
     dyn_obs = obstacles.copy()
 
-    return np.array([np.concatenate([goals, move_obstacles(dt*n, dyn_obs, vel, pos_dif, x_center).ravel()]) for n in range(N)])
+    return np.array([np.concatenate([goals, move_obstacles(dt*n, dyn_obs, vels, pos_dif, x_center).ravel()]) for n in range(N)])
 
 
 def make_obs(p):
@@ -51,11 +51,12 @@ if __name__ == "__main__":
     goal = np.array([1.45, 0.43])
     dt = 0.1
     N = 10
-    obstacles = np.array([[1.3, 0.60, 0.03, 0.03]])
-    vel = -0.02
-    pos_dif = 0.22
+    obstacles = np.array([[0.5 + 0.8,  0.1 + 0.75, 0.015, 0.017],
+                          [0.5 + 0.8, -0.1 + 0.75, 0.015, 0.017]])
+    vels = [0.0, 0.0]
+    pos_dif = 0.1
     x_center = 1.3
-    parameters = extract_parameters(goal, goal, dt, N, obstacles, vel, pos_dif, x_center)
+    parameters = extract_parameters(goal, goal, dt, N, obstacles, vels, pos_dif, x_center)
     print(parameters)
-    plt.plot(range(N), parameters[:, 4])
-    plt.show()
+    # plt.plot(range(N), parameters[:, 4])
+    # plt.show()

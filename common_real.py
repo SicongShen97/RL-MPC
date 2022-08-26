@@ -14,7 +14,7 @@ def get_args():
 	parser.add_argument('--alg', help='backend algorithm', type=str, default='ddpg2', choices=['ddpg', 'ddpg2'])
 	parser.add_argument('--learn', help='type of training method', type=str, default='hgg', choices=learner_collection.keys())
 
-	parser.add_argument('--env', help='gym env id', type=str, default='FrankaPickDynSqrObstacle-v1', choices=Robotics_envs_id)
+	parser.add_argument('--env', help='gym env id', type=str, default='FrankaPickDynSqrObstacles-v1', choices=Robotics_envs_id)
 	args, _ = parser.parse_known_args()
 
 	parser.add_argument('--goal', help='method of goal generation', type=str, default='mpc',
