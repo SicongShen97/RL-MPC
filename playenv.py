@@ -5,30 +5,44 @@ from policies import make_policy
 #
 register_custom_envs()
 args = get_args()
-args.env = "FrankaPickDynSqrObstacle-v1"
-args.play_path = "log/ddpg2-FrankaPickDynSqrObstacle-v1-hgg"
-args.play_policy = "RLPolicy"
+args.env = "FrankaPickDynSqrObstacles-v1"
+args.env_n_substeps = 100
+# args.play_path = "log/ddpg2-FrankaPickDynSqrObstacle-v1-hgg"
+# args.play_policy = "RLPolicy"
 env = make_env(args)
 import time
 # env = FrankaFetchPickDynSqrObstacleEnv()
-policy = make_policy(args)
-policy.set_envs(envs=[env])
+# policy = make_policy(args)
+# policy.set_envs(envs=[env])
 obs = env.reset()
 # print(obs['achieved_goal'])
-# print(obs["observation"])
-action = [1, -1, 0, 0]
+print(obs["observation"])
+action = [0, -1, 0, 0]
 pre_obs = None
 pre_grip = None
 t1 = time.time()
-for i in range(200):
+for i in range(100):
     # print(env.env)
 
-    actions, infos = policy.predict(obs=[obs])
+    # actions, infos = policy.predict(obs=[obs])
     # print(actions)
-    action = actions[0]
-    print("action:", action)
+    # action = actions[0]
+    # print("action:", action)
+    action[0] = 0.1*(-1)**i
+    id = env.sim.model.geom_name2id("obstacle:geom")  # id 36
+
+    # for i in range(env.sim.data.ncon):
+    #     contact = env.sim.data.contact[i]
+    #     if (contact.geom1 == id) or (contact.geom2 == id):
+    #         print("collide")
+    #         break
     obs, reward, done, info = env.step(action)
+    print(obs['object_dis'])
+    if info['Success'] == 1.0:
+        print(i)
+        break
     env.render()
+print(obs["observation"])
     # time.sleep(1)
     # print(info)
     # print(obs["observation"])

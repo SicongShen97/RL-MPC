@@ -10,7 +10,7 @@ class Policy:
     Vector = List[np.ndarray]
     InfoVector = List[dict]
 
-    envs = []
+    # envs = []
 
     def set_envs(self, envs: List[MPCControlGoalEnv]):
         # environments references

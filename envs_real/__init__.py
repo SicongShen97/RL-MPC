@@ -1,5 +1,6 @@
 import gym
 from .franka.franka_pick_dyn_sqr_obstacle import FrankaPickDynSqrObstacleEnv
+from .franka.franka_pick_dyn_sqr_obstacles import FrankaPickDynSqrObstaclesEnv
 
 def register_custom_envs():
     gym.envs.register(

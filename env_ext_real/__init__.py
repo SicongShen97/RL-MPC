@@ -3,7 +3,8 @@ import env_ext_real.franka as franka_env
 from .utils import goal_distance, goal_distance_obs
 
 Robotics_envs_id = [
-    'FrankaPickDynSqrObstacle-v1'
+    'FrankaPickDynSqrObstacle-v1',
+    'FrankaPickDynSqrObstacles-v1'
 ]
 
 
@@ -19,5 +20,6 @@ def clip_return_range(args):
     gamma_sum_min = args.reward_min / (1.0 - args.gamma)
     gamma_sum_max = args.reward_max / (1.0 - args.gamma)
     return {
+        'FrankaPickDynSqrObstacle-v1': (gamma_sum_min, gamma_sum_max),
         'FrankaPickDynSqrObstacles-v1': (gamma_sum_min, gamma_sum_max),
     }[args.env]

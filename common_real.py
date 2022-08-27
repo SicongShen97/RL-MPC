@@ -20,7 +20,7 @@ def get_args():
 	parser.add_argument('--goal', help='method of goal generation', type=str, default='mpc',
 						choices=['vanilla', 'fixobj', 'interval', 'mpc', 'col_test', 'ghgg_custom'])
 	if args.env[:6] == 'Franka':
-		parser.add_argument('--init_offset', help='initial offset in fetch environments', type=np.float32, default=1.0)
+		parser.add_argument('--init_offset', help='initial offset in franka environments', type=np.float32, default=1.0)
 
 	parser.add_argument('--play_path', help='path to meta_file directory for play', type=str, default=None)
 	parser.add_argument('--play_epoch', help='epoch to play', type=str, default='best')
@@ -29,7 +29,7 @@ def get_args():
 	parser.add_argument('--gamma', help='discount factor', type=np.float32, default=0.98)
 	parser.add_argument('--clip_return', help='whether to clip return value', type=str2bool, default=True)
 	# these two arguments might be helpful if using other than sparse reward (-1, 0)
-	parser.add_argument('--reward_min', help='discount factor', type=np.float32, default=-1.)
+	parser.add_argument('--reward_min', help='discount factor', type=np.float32, default=-10.)
 	parser.add_argument('--reward_max', help='discount factor', type=np.float32, default=0.)
 	parser.add_argument('--eps_act', help='percentage of epsilon greedy explorarion', type=np.float32, default=0.3)
 	parser.add_argument('--std_act', help='standard deviation of uncorrelated gaussian explorarion', type=np.float32, default=0.2)
@@ -42,7 +42,7 @@ def get_args():
 	parser.add_argument('--epochs', help='number of epochs', type=np.int32, default=20)
 	parser.add_argument('--cycles', help='number of cycles per epoch', type=np.int32, default=20)
 	parser.add_argument('--episodes', help='number of episodes per cycle', type=np.int32, default=50)
-	parser.add_argument('--timesteps', help='number of timesteps per episode', type=np.int32, default=(250 if args.env[:6]=='Franka' else 100))
+	parser.add_argument('--timesteps', help='number of timesteps per episode', type=np.int32, default=(100 if args.env[:6]=='Franka' else 100))
 	parser.add_argument('--train_batches', help='number of batches to train per episode', type=np.int32, default=20)
 
 	parser.add_argument('--buffer_size', help='number of episodes in replay buffer', type=np.int32, default=10000)
@@ -63,7 +63,7 @@ def get_args():
 						choices=['MPCRLPolicy', 'MPCPolicy', 'RLPolicy'])
 	parser.add_argument('--mpc_gen', help='Generate MPC', type=str2bool, default=False)
 	parser.add_argument('--mpc_path', help='MPC solver path', type=str, default='mpc_real/')
-	parser.add_argument('--env_n_substeps', help='Steps to simulate', type=np.int32, default=20)
+	parser.add_argument('--env_n_substeps', help='Steps to simulate', type=np.int32, default=100)
 	parser.add_argument('--test_col_tolerance', help='Collision tolerance for test', type=np.int32, default=0)
 	parser.add_argument('--test_run_id', help='Run id for test', type=np.int32, default=0)
 

@@ -62,16 +62,15 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         # self.target_range_x = 0.2  # entire table: 0.125
         # self.target_range_y = 0.02  # entire table: 0.175
         self.target_range = 0.005  # min target range for both axis
-        self.target_range_x = 0.15
+        self.target_range_x = 0.05
         self.target_range_y = 0.02
-        # self.distance_threshold = 0.05
         self.distance_threshold = 0.01
         self.reward_type = reward_type
         self.limit_action = 0.05    # limit maximum change in position
 
-        self.field = [1.3, 0.75, 0.6, 0.165, 0.35, 0.2]  # real env
-        self.dyn_obstacles = [[1.235, 0.903, 0.411, 0.015, 0.017, 0.01],
-                              []]  # real env
+        self.field = [1.3, 0.75, 0.6, 0.115, 0.35, 0.2]  # real env
+        self.dyn_obstacles = [[1.3, 0.85, 0.411, 0.015, 0.017, 0.01],
+                              [1.3, 0.65, 0.411, 0.015, 0.017, 0.01]]  # real env
 
         self.obstacles = self.dyn_obstacles
         self.block_max_z = 0.53
@@ -95,10 +94,10 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
 
         self.obstacle_slider_idxs = []
         self.obstacle_slider_idxs.append(self.sim.model.joint_names.index('obstacle:joint'))
-        # self.obstacle_slider_idxs.append(self.sim.model.joint_names.index('obstacle2:joint'))
+        self.obstacle_slider_idxs.append(self.sim.model.joint_names.index('obstacle2:joint'))
         self.geom_id_object = self.sim.model.geom_name2id('object0')
         self.geom_ids_obstacles = []
-        for name in ['obstacle:geom']:
+        for name in ['obstacle:geom', 'obstacle2:geom']:
             self.geom_ids_obstacles.append(self.sim.model.geom_name2id(name))
 
     def _setup_dyn_limits(self):
@@ -186,7 +185,7 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
     def step(self, action):
         t = self.sim.get_state().time + self.dt
         self._move_obstacles(t)
-        return super(FrankaPickDynSqrObstacleEnv, self).step(action)
+        return super(FrankaPickDynSqrObstaclesEnv, self).step(action)
 
     # GoalEnv methods
     # ----------------------------
@@ -258,11 +257,12 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
 
         body_id = self.sim.model.body_name2id('obstacle')
         pos1 = np.array(self.sim.data.body_xpos[body_id].copy())
-        # body_id2 = self.sim.model.body_name2id('obstacle2')
-        # pos2 = np.array(self.sim.data.body_xpos[body_id2].copy())
-        dims = self.obstacles[0][3:6]
-        ob1 = np.concatenate((pos1, dims.copy()))
-        # ob2 = np.concatenate((pos2, dims.copy()))
+        body_id2 = self.sim.model.body_name2id('obstacle2')
+        pos2 = np.array(self.sim.data.body_xpos[body_id2].copy())
+        dims1 = self.obstacles[0][3:6]
+        dims2 = self.obstacles[1][3:6]
+        ob1 = np.concatenate((pos1, dims1.copy()))
+        ob2 = np.concatenate((pos2, dims2.copy()))
 
         # obs = np.concatenate([
         #     grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
@@ -282,8 +282,7 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
             'observation': obs.copy(),
             'achieved_goal': achieved_goal.copy(),
             'desired_goal': self.goal.copy(),
-            # 'real_obstacle_info': np.array([ob1, ob2]),
-            'real_obstacle_info': np.array([ob1]),
+            'real_obstacle_info': np.array([ob1, ob2]),
             'object_dis': obj_dist
         }
 
@@ -308,21 +307,22 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
     def _reset_sim(self):
         self.sim.set_state(self.initial_state)
 
+        if self.block_object_in_gripper:
+            # open the gripper to place an object, next applied action will close it
+            self.sim.data.set_joint_qpos('robot0_finger_joint1', 0.01)
+            self.sim.data.set_joint_qpos('robot0_finger_joint2', 0.01)
+
         # # Randomize start position of object if need.
         if self.has_object:
             object_xpos = self.initial_gripper_xpos[:2]
             if not self.block_object_in_gripper:
-                object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range,
-                                                                                 size=2)
+                object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range,
+                                                                                     self.obj_range,
+                                                                                     size=2)
             object_qpos = self.sim.data.get_joint_qpos('object0:joint')
             assert object_qpos.shape == (7,)
             object_qpos[:2] = object_xpos
             self.sim.data.set_joint_qpos('object0:joint', object_qpos)
-
-        if self.block_object_in_gripper:
-            # open the gripper to place an object, next applied action will close it
-            self.sim.data.set_joint_qpos('robot0_finger_joint1', 0.015)
-            self.sim.data.set_joint_qpos('robot0_finger_joint2', 0.015)
 
         # randomize obstacles
         directions = self.np_random.choice([-1, 1], size=2)
@@ -336,8 +336,8 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
     def _sample_goal(self):
         goal = self.target_center.copy()
 
-        goal[1] += self.np_random.uniform(-self.target_range_y, self.target_range_y)
-        goal[0] += self.np_random.uniform(-self.target_range_x, self.target_range_x)
+        # goal[1] += self.np_random.uniform(-self.target_range_y, self.target_range_y)
+        # goal[0] += self.np_random.uniform(-self.target_range_x, self.target_range_x)
         goal[2] += 0.02
 
         return goal.copy()
@@ -410,4 +410,4 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
             self.height_offset = self.sim.data.get_site_xpos('object0')[2]
 
     def render(self, mode='human', width=1080, height=1080):
-        return super(FrankaPickDynSqrObstacleEnv, self).render(mode, width, height)
+        return super(FrankaPickDynSqrObstaclesEnv, self).render(mode, width, height)

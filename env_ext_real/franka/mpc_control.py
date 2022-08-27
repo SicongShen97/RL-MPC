@@ -97,7 +97,7 @@ class MPCControlGoalEnv(VanillaGoalEnv):
         action = np.clip(rl_action, self.action_space.low, self.action_space.high)
         pos_ctrl, gripper_ctrl = action[:3], action[3]
 
-        pos_ctrl *= 0.004  # limit maximum change in position
+        pos_ctrl *= 0.05  # limit maximum change in position
         try:
             grip_pos = self.sim.data.get_site_xpos('robot0:grip')
         except:
