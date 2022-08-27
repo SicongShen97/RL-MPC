@@ -6,7 +6,6 @@ from franka_robot import FrankaRobot
 import time
 import sys
 import numpy as np
-from policies_real import Policy
 
 
 class MPCPolicy:

@@ -268,8 +268,11 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         #     grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
         #     object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel
         # ])
+        # obs = np.concatenate([
+        #     grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
+        # ])
         obs = np.concatenate([
-            grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
+                grip_pos, object_pos.ravel(), object_rot.ravel()
         ])
         # print("grip_pos", grip_pos)
         # print("object_pos.ravel()", object_pos.ravel())
