@@ -4,18 +4,6 @@ from matplotlib import pyplot as plt
 
 
 def back_forth(a, s, v, t):
-    # if v > 0:
-    #     if s + v*dt <= a + center_x:
-    #         return s + v*dt
-    #     else:
-    #         return a + center_x
-    # elif v < 0:
-    #     if s + v*dt >= center_x - a:
-    #         return s + v*dt
-    #     else:
-    #         return center_x - a
-    # else:
-    #     return s
     if v == 0:
         return s
     p = 4*a / v
@@ -41,22 +29,23 @@ def extract_parameters(subgoal, goal, dt, N, obstacles, vels, pos_dif, x_center)
 
 
 def make_obs(p):
-    obst = p[4:]
+    obst = p[6:]
     n = obst.shape[0]
-    obs = {'real_obstacle_info': np.array_split(obst, n / 4)}
+    obs = {'real_obstacle_info': np.array_split(obst, n / 6)}
     return obs
 
 
 if __name__ == "__main__":
-    goal = np.array([1.45, 0.43])
+    goal = np.array([0.5 + 0.8, -0.3 + 0.75, 0.4])
     dt = 0.1
     N = 10
-    obstacles = np.array([[0.5 + 0.8,  0.1 + 0.75, 0.015, 0.017],
-                          [0.5 + 0.8, -0.1 + 0.75, 0.015, 0.017]])
+    dyn_obstacles = np.array([[0 + 0.5 + 0.8, 0.1 + 0.75, 0.4, 0.015, 0.017, 0.015],
+                              [0 + 0.5 + 0.8, -0.1 + 0.75, 0.4, 0.015, 0.017, 0.015]])
     vels = [0.0, 0.0]
     pos_dif = 0.1
     x_center = 1.3
-    parameters = extract_parameters(goal, goal, dt, N, obstacles, vels, pos_dif, x_center)
+    parameters = extract_parameters(goal, goal, dt, N, dyn_obstacles, vels, pos_dif, x_center)
     print(parameters)
+    print(np.array(make_obs(parameters[0])["real_obstacle_info"]))
     # plt.plot(range(N), parameters[:, 4])
     # plt.show()

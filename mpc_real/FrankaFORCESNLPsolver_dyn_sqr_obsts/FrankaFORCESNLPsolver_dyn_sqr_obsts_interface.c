@@ -66,8 +66,8 @@ extern solver_int32_default FrankaFORCESNLPsolver_dyn_sqr_obsts_adtool2forces(Fr
     FrankaFORCESNLPsolver_dyn_sqr_obsts_float nabla_f_sparse[5];
     FrankaFORCESNLPsolver_dyn_sqr_obsts_float h_sparse[2];
     FrankaFORCESNLPsolver_dyn_sqr_obsts_float nabla_h_sparse[6];
-    FrankaFORCESNLPsolver_dyn_sqr_obsts_float c_sparse[2];
-    FrankaFORCESNLPsolver_dyn_sqr_obsts_float nabla_c_sparse[4];
+    FrankaFORCESNLPsolver_dyn_sqr_obsts_float c_sparse[3];
+    FrankaFORCESNLPsolver_dyn_sqr_obsts_float nabla_c_sparse[5];
             
     
     /* pointers to row and column info for 

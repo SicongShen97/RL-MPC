@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 
-from env_ext.fetch import MPCControlGoalEnv
+from env_ext_real.franka import MPCControlGoalEnv
 
 
 class Policy:

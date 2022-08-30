@@ -5,9 +5,10 @@ import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
 import os
 from algorithm.replay_buffer import goal_based_process
+from policies_real import Policy
 
 
-class RLPolicy:
+class RLPolicy(Policy):
     Vector = List[np.ndarray]
     InfoVector = List[dict]
 
@@ -31,7 +32,7 @@ class RLPolicy:
     # predicts next actions for given states (observations)
     def predict(self, obs: Vector) -> (Vector, InfoVector):
         actions = self._my_step_batch(obs)
-        return actions, []
+        return actions
 
     def _my_step_batch(self, obs):
         # compute actions from obs based on current policy by running tf session initialized before

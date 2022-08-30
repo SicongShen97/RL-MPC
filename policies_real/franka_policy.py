@@ -12,19 +12,19 @@ class Policy:
 
     # envs = []
 
-    def set_envs(self, envs: List[MPCControlGoalEnv]):
+    def set_env(self, env: MPCControlGoalEnv):
         # environments references
-        self.envs = envs
+        self.env = env
 
     @abstractmethod
     def predict(self, obs: Vector) -> (Vector, InfoVector):
         """Predict the next step"""
         raise NotImplementedError
 
-    @abstractmethod
-    def initial_info(self, obs: Vector) -> InfoVector:
-        """Get the initial information for debugging"""
-        raise NotImplementedError
+    # @abstractmethod
+    # def initial_info(self, obs: Vector) -> InfoVector:
+    #     """Get the initial information for debugging"""
+    #     raise NotImplementedError
 
     @abstractmethod
     def reset(self):

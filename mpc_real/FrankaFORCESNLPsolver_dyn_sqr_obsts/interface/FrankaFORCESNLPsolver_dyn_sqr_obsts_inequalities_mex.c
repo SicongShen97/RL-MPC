@@ -87,12 +87,12 @@ FrankaFORCESNLPsolver_dyn_sqr_obsts_extfunc pt2function_FrankaFORCESNLPsolver_dy
 static void getDims(const solver_int stage, solver_int* nvar, solver_int* neq, solver_int* dimh, 
              solver_int* dimp, solver_int* diml, solver_int* dimu, solver_int* dimhl, solver_int* dimhu)
 {
-    const solver_int nvarArr[NSTAGES] = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5}; 
-    const solver_int neqArr[NSTAGES] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 0};
+    const solver_int nvarArr[NSTAGES] = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7}; 
+    const solver_int neqArr[NSTAGES] = {3, 3, 3, 3, 3, 3, 3, 3, 3, 0};
     const solver_int dimhArr[NSTAGES] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-    const solver_int dimpArr[NSTAGES] = {12, 12, 12, 12, 12, 12, 12, 12, 12, 12};
-    const solver_int dimlArr[NSTAGES] = {3, 4, 4, 4, 4, 4, 4, 4, 4, 4};
-    const solver_int dimuArr[NSTAGES] = {2, 3, 3, 3, 3, 3, 3, 3, 3, 3};
+    const solver_int dimpArr[NSTAGES] = {18, 18, 18, 18, 18, 18, 18, 18, 18, 18};
+    const solver_int dimlArr[NSTAGES] = {4, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+    const solver_int dimuArr[NSTAGES] = {3, 4, 4, 4, 4, 4, 4, 4, 4, 4};
     const solver_int dimhlArr[NSTAGES] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
     const solver_int dimhuArr[NSTAGES] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 

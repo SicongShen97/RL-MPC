@@ -28,7 +28,7 @@ for i in range(100):
     # print(actions)
     # action = actions[0]
     # print("action:", action)
-    action[0] = 0.1*(-1)**i
+    action[0] = 1*(-1)**i
     id = env.sim.model.geom_name2id("obstacle:geom")  # id 36
 
     # for i in range(env.sim.data.ncon):

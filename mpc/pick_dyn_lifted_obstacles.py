@@ -26,6 +26,7 @@ from mpc.mpc_common import extract_parameters, make_obs, get_args
 
 def continuous_dynamics(x, u, p):
     # calculate dx/dt
+    # x = [x, y, z, vx, vy, vz], u=[Fx, Fy, Fz]
     return casadi.vertcat(x[3],
                           x[4],
                           x[5],
@@ -36,6 +37,7 @@ def continuous_dynamics(x, u, p):
 
 
 def objective(z, p):
+
     u = z[0:4]
     x = z[4:10]
     acc_x_rel = u[0] / 30.0

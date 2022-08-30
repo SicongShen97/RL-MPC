@@ -25,14 +25,49 @@ def ellipse(bbox, ax=None, *args, **kwargs):
 
 
 class MPCDebugPlot:
-    def __init__(self, sim_length: int, model):
-        self.x = np.zeros((2, sim_length + 1))  # states
-        self.u = np.zeros((2, sim_length))  # inputs
+    grip_w_x = None
+    grip_w_y = None
+    grip_w_z = None
+
+    obstacle_color = []
+
+    safe_areas = {
+        'FrankaPickDynSqrObstacles-v1': [0.0, 0.005, 0],
+
+        'FetchPickDynObstaclesEnv-v1': [[0.05, 0.03], [0.05, 0.048], [0.05, 0.05]],
+        'FetchPickDynObstaclesEnv-v2': [[0.05, 0.03], [0.05, 0.048], [0.05, 0.05]],
+        'FetchPickDynLiftedObstaclesEnv-v1': [[0.05, 0.055 + 0.02, 0.055], [0.05, 0.05 + 0.02, 0.05], [0.05, 0.02, 0.02]],
+        'FetchPickDynObstaclesMaxEnv-v1': [[0.05, 0.03], [0.05, 0.048], [0.05, 0.05]],
+        'FrankaFetchPickDynSqrObstacle-v1': [[0.05, 0.05], [0.05, 0.05], [0.05, 0.05]],
+    }
+
+    obstacle_colors = {
+        'FrankaPickDynSqrObstacles-v1': ['#416ab6', '#416ab6'],
+
+
+        'FetchPickDynObstaclesEnv-v1': ['#416ab6', '#5aa9a2'],
+        'FetchPickDynObstaclesEnv-v2': ['#416ab6', '#416ab6'],
+        'FetchPickDynLiftedObstaclesEnv-v1': ['#416ab6', '#416ab6', '#5aa9a2'],
+        'FetchPickDynObstaclesMaxEnv-v1': ['#416ab6', '#5aa9a2'],
+
+        'FrankaFetchPickDynSqrObstacle-v1': ['#416ab6', '#416ab6'],
+    }
+
+    def __init__(self, args, sim_length: int, model):
+        self.x = np.zeros((3, sim_length + 1))  # states
+        self.u = np.zeros((3, sim_length))  # inputs
         self.err = np.zeros(sim_length)  # errors
         self.sim_length = sim_length
         self.model = model
-        self.grip = [0.015, 0.015 + 0.005]
-        self.obstacle_color = '#416ab6'
+        self.obj = [0.015, 0.015]
+        # self.obstacle_color = '#416ab6'
+        self.setup(args.env)
+
+    def setup(self, env):
+        self.grip_w_x = self.safe_areas[env][0]
+        self.grip_w_y = self.safe_areas[env][1]
+        self.grip_w_z = self.safe_areas[env][2]
+        self.obstacle_color = list(reversed(self.obstacle_colors[env]))     # reverse for z-index of the layers
 
     def createPlot(self, xinit, pred_x, pred_u, k, parameters, obs):
         """Creates a plot and adds the initial data provided by the arguments"""
@@ -49,12 +84,12 @@ class MPCDebugPlot:
         fig = plt.figure()
         fig.set_size_inches(9, 9, forward=True)
         plt.clf()
-        gs = GridSpec(2, 2, figure=fig)
+        gs = GridSpec(4, 2, figure=fig)
 
         # Plot trajectory
         ax_pos = fig.add_subplot(gs[:, 0])
         plt.grid("both")
-        ax_pos.plot(parameters[0][2], parameters[0][3], 'bo')  # main goal
+        ax_pos.plot(parameters[0][3], parameters[0][4], 'bo')  # main goal
         plt.title('Position', fontsize=16)
         plt.axis('equal')
         plt.xlim([1.05, 1.4])  # real env set
@@ -75,18 +110,18 @@ class MPCDebugPlot:
         for i in range(len(real_obstacles)):
             # real obstacle shape
             obst = real_obstacles[i]
-            bbox = (obst[0], obst[1], obst[2] * 2, obst[3] * 2)
-            rectangle(bbox, fill=True, linestyle=":", edgecolor='red', color=self.obstacle_color)
+            bbox = (obst[0], obst[1], obst[3] * 2, obst[4] * 2)
+            rectangle(bbox, fill=True, linestyle=":", edgecolor='red', color=self.obstacle_color[i])
 
         # place grip rectangle
-        bbox = (xinit[0], xinit[1], self.grip[0] * 2, self.grip[1] * 2)
+        bbox = (xinit[0], xinit[1], (self.obj[0] + self.grip_w_x) * 2, (self.obj[1] + self.grip_w_y) * 2)
         rectangle(bbox, fill=False, linestyle=":", edgecolor='blue')
 
         for i in range(N - 1):
             # draw convex hull
             p = parameters[i]
-            bbox1 = (p[4], p[5], obst_sz[0]*2, obst_sz[0]*2)
-            bbox2 = (p[8], p[9], obst_sz[1]*2, obst_sz[1]*2)
+            bbox1 = (p[6], p[7], obst_sz[0]*2, obst_sz[0]*2)
+            bbox2 = (p[12], p[13], obst_sz[1]*2, obst_sz[1]*2)
             ellipse(bbox1, fill=False, linestyle=":", edgecolor='blue' if i == 0 else 'green',
                     alpha=(1.0 - i / N))
             ellipse(bbox2, fill=False, linestyle=":", edgecolor='blue' if i == 0 else 'green',
@@ -111,6 +146,29 @@ class MPCDebugPlot:
         plt.plot([0, sim_length - 1], np.transpose([model.lb[1], model.lb[1]]), 'r:')
         ax_dy.step(range(0, k + 1), u[1, 0:k + 1], 'b-')
         ax_dy.step(range(k, k + model.N), pred_u[1, :], 'g-')
+
+        # Plot action dz
+        ax_dz = fig.add_subplot(gs[2, 1])
+        plt.grid("both")
+        plt.title('displacement of z', fontsize=16)
+        plt.xlim([0., sim_length - 1])
+        plt.plot([0, sim_length - 1], np.transpose([model.ub[2], model.ub[2]]), 'r:')
+        plt.plot([0, sim_length - 1], np.transpose([model.lb[2], model.lb[2]]), 'r:')
+        ax_dz.step(range(0, k + 1), u[2, 0:k + 1], 'b-')
+        ax_dz.step(range(k, k + model.N), pred_u[2, :], 'g-')
+
+        # Plot Z
+        ax_Z = fig.add_subplot(gs[3, 1])
+        plt.grid("both")
+        plt.title('Position Z', fontsize=16)
+        plt.xlim([0., sim_length - 1])
+        # plt.plot([0, sim_length - 1], np.transpose([model.hu[4], model.hu[4]]), 'r:')
+        # plt.plot([0, sim_length - 1], np.transpose([model.hl[4], model.hl[4]]), 'r:')
+        plt.plot([0, sim_length - 1], np.transpose([0.465, 0.465]), 'r:')
+        plt.plot([0, sim_length - 1], np.transpose([0.405, 0.405]), 'r:')
+        ax_Z.plot(range(0, k + 1), x[2, 0:k + 1], '-b')
+        ax_Z.plot(range(k, k + model.N), pred_x[2, :], 'g-')
+
 
         plt.tight_layout()
         # Make plot fullscreen. Comment out if platform dependent errors occur.
@@ -138,17 +196,16 @@ class MPCDebugPlot:
         for i in range(len(real_obstacles)):
             obj = rectangles[i]
             obst = real_obstacles[i]
-            print()
-            obj.set_xy((obst[0] - obst[2], obst[1] - obst[3]))
+            obj.set_xy((obst[0] - obst[3], obst[1] - obst[4]))
         obj = rectangles[i + 1]
-        obj.set_xy((next_x[0] - self.grip[0], next_x[1] - self.grip[1]))
+        obj.set_xy((next_x[0] - (self.obj[0] + self.grip_w_x), next_x[1] - (self.obj[1] + self.grip_w_y)))
 
         # Move predicted obstacles
         ellipses = list(filter(lambda obj: type(obj) is matplotlib.patches.Ellipse, ax_list[0].get_children()))
         obstacles = []
         for p in parameters[1:]:
-            obstacles.append([p[4], p[5]])
-            obstacles.append([p[8], p[9]])
+            obstacles.append([p[6], p[7]])
+            obstacles.append([p[12], p[13]])
 
         # Draw original and predicted obstacles
         for z in zip(ellipses, obstacles):
@@ -168,6 +225,12 @@ class MPCDebugPlot:
         ax_list[2].get_lines().pop(-1).remove()  # remove old prediction dy
         ax_list[2].get_lines().pop(-1).remove()  # remove old dy
 
+        ax_list[3].get_lines().pop(-1).remove()  # remove old prediction dz
+        ax_list[3].get_lines().pop(-1).remove()  # remove old dz
+
+        ax_list[4].get_lines().pop(-1).remove()  # remove old prediction z
+        ax_list[4].get_lines().pop(-1).remove()  # remove old z
+
         # Plot new data in plot
         ax_list[0].plot(x[0, 0:k + 2], x[1, 0:k + 2], '-b')  # plot new trajectory
         ax_list[0].plot(pred_x[0, 1:], pred_x[1, 1:], 'g-')  # plot new prediction of trajectory
@@ -180,6 +243,11 @@ class MPCDebugPlot:
         ax_list[2].step(range(0, k + 1), u[1, 0:k + 1], 'b-')  # plot new dy
         ax_list[2].step(range(k, k + model.N), pred_u[1, :], 'g-')  # plot new prediction of dy
 
+        ax_list[3].step(range(0, k + 1), u[2, 0:k + 1], 'b-')  # plot new dz
+        ax_list[3].step(range(k, k + model.N), pred_u[2, :], 'g-')  # plot new prediction of dz
+
+        ax_list[4].plot(range(0, k + 1), x[2, 0:k + 1], '-b')  # plot new z
+        ax_list[4].plot(range(k, k + model.N), pred_x[2, :], 'g-')  # plot new prediction of z
 
     def show(self):
         plt.show()
