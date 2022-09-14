@@ -33,6 +33,7 @@ class Player:
         # robot set
         self.robot = FrankaRobot("192.168.5.12")
         self.gripper = self.robot.gripper
+        self.block_z = False if args.env == 'FrankaPickDynLiftedObstacles-v1' else True
         # real env set
         self.offset = np.array([0.8, 0.75])  # robot base relative to the origin in simulator
         self.goal = np.array([0.5, -0.3]) + self.offset

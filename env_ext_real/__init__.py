@@ -6,7 +6,8 @@ Robotics_envs_id = [
     'FrankaPickDynSqrObstacle-v1',
     'FrankaPickDynSqrObstacles-v1',
     'FrankaPickDynObstacles-v1',
-    'FrankaPickDynObstacles-v2'
+    'FrankaPickDynObstacles-v2',
+    'FrankaPickDynLiftedObstacles-v1'
 ]
 
 
@@ -26,4 +27,5 @@ def clip_return_range(args):
         'FrankaPickDynSqrObstacles-v1': (gamma_sum_min, gamma_sum_max),
         'FrankaPickDynObstacles-v1': (gamma_sum_min, gamma_sum_max),
         'FrankaPickDynObstacles-v2': (gamma_sum_min, gamma_sum_max),
+        'FrankaPickDynLiftedObstacles-v1': (gamma_sum_min, gamma_sum_max)
     }[args.env]
