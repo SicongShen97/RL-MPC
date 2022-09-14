@@ -7,7 +7,7 @@ import numpy as np
 import forcespro
 import forcespro.nlp
 from mpc_real.franka_mpc_common import *
-# from camera_librealsense import Camera
+from camera_librealsense import Camera
 from mpc_real.franka_plot import MPCDebugPlot
 sys.path.append('../')
 from common_real import get_args
@@ -121,8 +121,8 @@ def main():
     # generate code for estimator
     model, solver, codeoptions = generate_pathplanner(create=False)
     args = get_args()
-    # camera = Camera()
-    # camera.start()
+    camera = Camera()
+    camera.start()
     # Simulation
     # ----------
     # Variables for storing simulation data
@@ -133,14 +133,14 @@ def main():
     pos_dif = 0.1  # real env set
     center_x = 0.5 + 0.8  # real env set
     # dyn pos from camera
-    # frame_init = camera.get_frame()
-    # dists, _ = camera.get_distance(frame_init, add_to_frame=False)
-    # offsets = np.array([0.042, 0.04])
-    # dists -= offsets  # relative to origin
-    # dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8,  0.1 + 0.75, 0.015, 0.017],
-    #                           [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.015, 0.017]])
-    dyn_obstacles = np.array([[0 + 0.5 + 0.8,  0.1 + 0.75, 0.4, 0.015, 0.017, 0.015],
-                              [0 + 0.5 + 0.8, -0.1 + 0.75, 0.4, 0.015, 0.017, 0.015]])
+    frame_init = camera.get_frame()
+    dists, _ = camera.get_distance(frame_init, add_to_frame=False)
+    offsets = np.array([0.044, 0.042])
+    dists -= offsets  # relative to origin
+    dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8,  0.1 + 0.75, 0.4, 0.015, 0.017, 0.015],
+                              [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.4, 0.015, 0.017, 0.015]])
+    # dyn_obstacles = np.array([[0 + 0.5 + 0.8,  0.1 + 0.75, 0.4, 0.015, 0.017, 0.015],
+    #                           [0 + 0.5 + 0.8, -0.1 + 0.75, 0.4, 0.015, 0.017, 0.015]])
     sim_length = 180
 
     # Set runtime parameters
@@ -169,15 +169,15 @@ def main():
         if k % 10 == 9:
             signs *= -1
         # dyn pos from camera
-        # frame = camera.get_frame()
-        # dists, _ = camera.get_distance(frame, add_to_frame=False)
-        # dists -= offsets  # real env set
-        # if pre_dists.any():
-        #     signs = np.sign(dists - pre_dists)
-        # pre_dists = dists
-        # dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8,  0.1 + 0.75, 0.015, 0.017],
-        #                           [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.015, 0.017]])
-        dyn_obstacles = np.array(obs["real_obstacle_info"])
+        frame = camera.get_frame()
+        dists, _ = camera.get_distance(frame, add_to_frame=False)
+        dists -= offsets  # real env set
+        if pre_dists.any():
+            signs = np.sign(dists - pre_dists)
+        pre_dists = dists
+        dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8, 0.1 + 0.75, 0.4, 0.015, 0.017, 0.015],
+                                  [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.4, 0.015, 0.017, 0.015]])
+        # dyn_obstacles = np.array(obs["real_obstacle_info"])
         # move initial position to solve problem further
         problem["xinit"] = xinit
 

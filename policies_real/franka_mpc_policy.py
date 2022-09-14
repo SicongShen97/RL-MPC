@@ -20,7 +20,7 @@ class MPCPolicy(Policy):
         self.last_pred_idx = None
         self.subgoal = None
         self.pre_dists = np.array([None, None])
-        self.signs = np.array([1, 1])
+        # self.signs = np.array([1, 1])
 
     def reset(self):
         return
@@ -57,20 +57,20 @@ class MPCPolicy(Policy):
         grip_pos = observation[0:3]
         xinit = np.transpose(np.array([grip_pos[0], grip_pos[1], grip_pos[2]]))
 
-        dists = np.array([obstacles[0][0], obstacles[1][0]])
-        if self.pre_dists.any():
-            self.signs = np.sign(dists - self.pre_dists)
-        self.pre_dists = dists
+        # dists = np.array([obstacles[0][0], obstacles[1][0]])
+        # if self.pre_dists.any():
+        #     self.signs = np.sign(dists - self.pre_dists)
+        # self.pre_dists = dists
 
         # dyn_obstacles = self.get_obs_pose(dists)
         goal = ob["desired_goal"]
         subgoal = self.subgoal
 
-        if np.linalg.norm(xinit - goal) < self.model.N * dt * 1.0:
+        if np.linalg.norm(xinit[:2] - goal[:2]) < self.model.N * dt * 1.0:
             # solve the MPC problem using the global goal as sub goal
             subgoal = goal
 
-        parameters = extract_parameters(subgoal, goal, dt, self.model.N, obstacles, self.signs * vels,
+        parameters = extract_parameters(subgoal, goal, dt, self.model.N, obstacles, vels,
                                         pos_dif, center_x)
 
         problem = self.get_problem(xinit, parameters)
@@ -78,7 +78,7 @@ class MPCPolicy(Policy):
         # call the solver
         # output, exitflag, info = self.solver.solve(problem)
         pred_u, pred_x, exitflag, info = self._solve_mpc(problem)
-        if exitflag != 1:
+        if exitflag < 0:
             # take previous actions
             if last_pred_u is not None and last_pred_idx is not None and last_pred_idx < self.model.N - 1:
                 action = last_pred_u[:, last_pred_idx + 1]

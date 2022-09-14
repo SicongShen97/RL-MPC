@@ -169,12 +169,14 @@ def main():
     args = get_args()
     args.env = 'FetchPickDynObstaclesEnv-v2'
     # generate code for estimator
+    args.mpc_gen = False
     model, solver, codeoptions = generate_pathplanner(create=args.mpc_gen)
 
     # Simulation
     # ----------
     # Variables for storing simulation data
-    goal = np.array([1.45, 0.43, 0.469])
+    # goal = np.array([1.45, 0.43, 0.469])
+    goal = np.array([1.3, 0.43, 0.469])
     t = 0
     dt = codeoptions.nlp.integrator.Ts
     vels = np.array([0.5, 0.00001])

@@ -30,7 +30,7 @@ class MPCRLPolicy(Policy):
 
     # predicts next actions for given states (observations)
     def predict(self, obs):
-        rl_actions, _ = self.rl_policy.predict(obs)
+        rl_actions = self.rl_policy.predict(obs)
         sub_goal = self.env.subgoal(rl_actions[0])
         self.mpc_policy.set_sub_goal(sub_goal)
 

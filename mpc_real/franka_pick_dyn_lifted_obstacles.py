@@ -51,9 +51,9 @@ def S(a, x1, x2, x3):
 def inequality_constraints(z, p):
     # z = [dx, dy, dz, s, x, y, z]
     # p = [sub_goal_x, sub_goal_y, sub_goal_z, goal_x, goal_y, goal_z,
-    # obst1_x, obst1_y, obst1_z, obst1_l, obst1_w, obst1_h,
-    # obst2_x, obst2_y, obst2_z, obst2_l, obst2_w, obst2_h,
-    # obst3_x, obst3_y, obst3_z, obst3_l, obst3_w, obst3_h]
+    # obst1_x, obst1_y, obst1_z, obst1_l, obst1_w, obst1_h, moving not square
+    # obst2_x, obst2_y, obst2_z, obst2_l, obst2_w, obst2_h, moving square
+    # obst3_x, obst3_y, obst3_z, obst3_l, obst3_w, obst3_h] not moving
     x = z[4:7]
 
     p_x = x[0]
@@ -72,8 +72,8 @@ def inequality_constraints(z, p):
     y_o3 = p[19]
     z_o3 = p[20]
 
-    grip_w_x = 0.01
-    grip_w_y = 0.005
+    grip_w_x = 0.015
+    grip_w_y = 0.015 + 0.005
     grip_w_z = 0.005
 
     dx_o1 = p[9] + grip_w_x + 0.0

@@ -5,7 +5,7 @@ from policies import make_policy
 #
 register_custom_envs()
 args = get_args()
-args.env = "FrankaPickDynSqrObstacles-v1"
+args.env = "FrankaPickDynObstacles-v2"
 args.env_n_substeps = 100
 # args.play_path = "log/ddpg2-FrankaPickDynSqrObstacle-v1-hgg"
 # args.play_policy = "RLPolicy"
@@ -29,7 +29,7 @@ for i in range(100):
     # action = actions[0]
     # print("action:", action)
     action[0] = 1*(-1)**i
-    id = env.sim.model.geom_name2id("obstacle:geom")  # id 36
+    # id = env.sim.model.geom_name2id("obstacle:geom")  # id 36
 
     # for i in range(env.sim.data.ncon):
     #     contact = env.sim.data.contact[i]
@@ -42,7 +42,7 @@ for i in range(100):
         print(i)
         break
     env.render()
-print(obs["observation"])
+# print(obs["observation"])
     # time.sleep(1)
     # print(info)
     # print(obs["observation"])
@@ -51,7 +51,7 @@ print(obs["observation"])
     #     print(i)
     #     break
     # print(obs["observation"][-3:])
-print(time.time() - t1)
+# print(time.time() - t1)
     # obs_pos = env.sim.data.get_site_xpos('o')
     # grip_pos = obs["observation"][:3]
     # if pre_obs is not None:

@@ -29,12 +29,10 @@ class MPCDebugPlot:
     grip_w_y = None
     grip_w_z = None
 
-    obstacle_color = []
-
     safe_areas = {
         'FrankaPickDynSqrObstacles-v1': [0.0, 0.005, 0],
+        'FrankaPickDynObstacles-v1': [0.0, 0.005, 0],
 
-        'FetchPickDynObstaclesEnv-v1': [[0.05, 0.03], [0.05, 0.048], [0.05, 0.05]],
         'FetchPickDynObstaclesEnv-v2': [[0.05, 0.03], [0.05, 0.048], [0.05, 0.05]],
         'FetchPickDynLiftedObstaclesEnv-v1': [[0.05, 0.055 + 0.02, 0.055], [0.05, 0.05 + 0.02, 0.05], [0.05, 0.02, 0.02]],
         'FetchPickDynObstaclesMaxEnv-v1': [[0.05, 0.03], [0.05, 0.048], [0.05, 0.05]],
@@ -120,6 +118,7 @@ class MPCDebugPlot:
         for i in range(N - 1):
             # draw convex hull
             p = parameters[i]
+
             bbox1 = (p[6], p[7], obst_sz[0]*2, obst_sz[0]*2)
             bbox2 = (p[12], p[13], obst_sz[1]*2, obst_sz[1]*2)
             ellipse(bbox1, fill=False, linestyle=":", edgecolor='blue' if i == 0 else 'green',

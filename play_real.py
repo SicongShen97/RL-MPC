@@ -19,8 +19,10 @@ class Player:
     # debug_plot: MPCDebugPlotSmall = None
     mpc_policy = False
 
-    obst_sizes = {"FrankaPickDynSqrObstacles-v1": np.array([[0.015, 0.017], [0.015, 0.017]])}
-    obst_vels = {"FrankaPickDynSqrObstacles-v1": np.array([0.02, 0.03])}
+    obst_sizes = {"FrankaPickDynSqrObstacles-v1": np.array([[0.015, 0.017], [0.015, 0.017]]),
+                  "FrankaPickDynObstacles-v1": np.array([[0.045, 0.017], [0.015, 0.017]])}
+    obst_vels = {"FrankaPickDynSqrObstacles-v1": np.array([0.02, 0.03]),
+                 "FrankaPickDynObstacles-v1": np.array([0.0, 0.03])}
 
     def __init__(self, args):
         # mujoco env set
@@ -43,7 +45,7 @@ class Player:
         self.obst_rel_robot = np.array([[0.5, 0.1], [0.5, -0.1]])  # middle pose relative to robot base
         self.pos_dif = 0.1
         self.center_x = 0.5 + self.offset[0]
-        self.origin_offset = np.array([0.042, 0.039])
+        self.origin_offset = np.array([0.042, 0.041])
         self.pre_dists = np.array([None, None])
         self.signs = np.array([1, 1])
         # camera set
@@ -62,7 +64,7 @@ class Player:
         self.robot.move_to_init(pose)
         input("Enter to grasp the object.")
         self.robot.clamp()
-        self.robot.move([0, 0, 0.2])
+        self.robot.move([0, 0, 0.15])
         input("Enter to start moving.")
 
     def get_obs_distance(self):
@@ -93,7 +95,7 @@ class Player:
     def close_to_goal(self, xinit):
         # cur_pos = self.robot.current_pose()[:2]
         goal = self.goal
-        if np.linalg.norm(xinit - goal, 2) <= 0.01:
+        if np.linalg.norm(xinit[:2] - goal[:2], 2) <= 0.05:
             return True
         return False
 
@@ -101,6 +103,7 @@ class Player:
         xinit = self.init + self.offset
         dists = self.get_obs_distance()
         ob = self.env.reset()
+        print("original obs", ob)
         ob = self.set_obs(ob, xinit, dists)
         if args.play_policy in ['MPCPolicy']:
             self.policy.set_sub_goal(ob['desired_goal'])
@@ -108,18 +111,23 @@ class Player:
         while not self.close_to_goal(xinit):
             # print("xinit: ", xinit)
             t1 = time.time()
+            # print("observation", ob["observation"])
             real_actions = self.policy.predict([ob])
             real_action = real_actions[0]
             if args.play_policy in ['RLPolicy']:
                 real_action *= 0.05
-            self.robot.move(real_action)
-            # print("action:", real_action)
+                # for xy motion
+                real_action[2] = 0
+            self.robot.move(real_action[:3])
+            print("action:", real_action)
 
             # update the original pose
             cur_pose = self.robot.current_pose()
             x_init = cur_pose[0] + self.offset[0]
             y_init = cur_pose[1] + self.offset[1]
             xinit = np.array([x_init, y_init])
+            dists = self.get_obs_distance()
+            ob = self.set_obs(ob, xinit, dists)
             print("time:", time.time() - t1)
             if self.dt - (time.time() - t1) > 0:
                 time.sleep(self.dt - (time.time() - t1))
@@ -130,11 +138,20 @@ class Player:
         obs["observation"][3:5] = xinit[:2]
 
         dyn_obstacles = self.get_obs_pose(dists)
-        obs["observation"][9:11] = dyn_obstacles[0][:2]
-        obs["observation"][15:17] = dyn_obstacles[1][:2]
+        obs["observation"][9:11] = dyn_obstacles[0, :2]
+        obs["observation"][15:17] = dyn_obstacles[1, :2]
+        obs["real_obstacle_info"][0, :2] = dyn_obstacles[0, :2]
+        obs["real_obstacle_info"][1, :2] = dyn_obstacles[1, :2]
 
-        obs["observation"][21] = self.vels[0]
-        obs["observation"][24] = self.vels[1]
+        if self.pre_dists.any():
+            signs = np.sign(dists - self.pre_dists)
+            self.signs[0] = signs[0] if signs[0] != 0 else -self.signs[0]
+            self.signs[1] = signs[1] if signs[1] != 0 else -self.signs[1]
+        self.pre_dists = dists
+        obs["observation"][21] = self.vels[0]*self.signs[0]
+        obs["observation"][24] = self.vels[1]*self.signs[1]
+        obs["obj_vels"][0, 0] = self.vels[0]*self.signs[0]
+        obs["obj_vels"][1, 0] = self.vels[1]*self.signs[1]
 
         goal = self.goal
         obs["desired_goal"][:2] = goal[:2]
@@ -146,11 +163,11 @@ class Player:
         return obs
 
 
-
 if __name__ == "__main__":
     register_custom_envs()
     # Call play.py in order to see current policy progress
     args = get_args()
     player = Player(args)
+    player.initialize()
     player.play()
     # player.record_video(raw_path="/home/ssc/bachelor-thesis/videos/rollouts_{}_{}".format(args.env, args.play_policy))
