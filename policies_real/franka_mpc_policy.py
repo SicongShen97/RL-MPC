@@ -66,7 +66,7 @@ class MPCPolicy(Policy):
         goal = ob["desired_goal"]
         subgoal = self.subgoal
 
-        if np.linalg.norm(xinit[:2] - goal[:2]) < self.model.N * dt * 1.0:
+        if np.linalg.norm(xinit[:2] - goal[:2]) < 0.3:
             # solve the MPC problem using the global goal as sub goal
             subgoal = goal
 

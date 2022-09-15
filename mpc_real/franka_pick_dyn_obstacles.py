@@ -141,16 +141,16 @@ def main():
     # Simulation
     # ----------
     # Variables for storing simulation data
-    goal = np.array([0.5 + 0.88, -0.3 + 0.75, 0.4])  # relative to robot base [0.5, -0.3]
+    goal = np.array([0.57 + 0.8, -0.3 + 0.75, 0.4])  # relative to robot base [0.5, -0.3]
     t = 0
     dt = 0.5   # real env set
-    vels = np.array([0.02, 0.03])   # real env set
+    vels = np.array([0.0, 0.03])   # real env set
     pos_dif = 0.1  # real env set
     center_x = 0.5 + 0.8  # real env set
     # dyn pos from camera
     frame_init = camera.get_frame()
     dists, _ = camera.get_distance(frame_init, add_to_frame=False)
-    offsets = np.array([0.042, 0.039])
+    offsets = np.array([0.043, 0.04])
     dists -= offsets  # relative to origin
     dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8,  0.1 + 0.75, 0.4, 0.045, 0.017, 0.015],
                               [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.4, 0.015, 0.017, 0.015]])

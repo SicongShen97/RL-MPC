@@ -12,13 +12,12 @@ class FrankaRobot:
 
     def move_to_init(self, initial_pos):
         self.robot.move(LinearMotion(Affine(*initial_pos, 0, 0, 0)))
-        self.gripper.move(0.03)
         # self.robot.move(LinearMotion(Affine(0, 0, -0.03, 0, 0, 0)))
 
     def clamp(self):
         self.gripper.clamp()
 
-    def release(self, disp=0.03):
+    def release(self, disp=0.05):
         self.gripper.release(disp)
 
     def move(self, displacement):

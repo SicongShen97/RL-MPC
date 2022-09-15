@@ -19,8 +19,8 @@ class Player:
     # debug_plot: MPCDebugPlotSmall = None
     mpc_policy = False
 
-    obst_sizes = {"FrankaPickDynSqrObstacles-v1": np.array([[0.015, 0.017], [0.015, 0.017]]),
-                  "FrankaPickDynObstacles-v1": np.array([[0.045, 0.017], [0.015, 0.017]])}
+    obst_sizes = {"FrankaPickDynSqrObstacles-v1": np.array([[0.015, 0.017, 0.015], [0.015, 0.017, 0.015]]),
+                  "FrankaPickDynObstacles-v1": np.array([[0.045, 0.017, 0.015], [0.015, 0.017, 0.015]])}
     obst_vels = {"FrankaPickDynSqrObstacles-v1": np.array([0.02, 0.03]),
                  "FrankaPickDynObstacles-v1": np.array([0.0, 0.03])}
 
@@ -35,18 +35,18 @@ class Player:
         self.gripper = self.robot.gripper
         self.block_z = False if args.env == 'FrankaPickDynLiftedObstacles-v1' else True
         # real env set
-        self.offset = np.array([0.8, 0.75])  # robot base relative to the origin in simulator
-        self.goal = np.array([0.5, -0.3]) + self.offset
+        self.offset = np.array([0.8, 0.75, 0.415 - 0.15])  # robot base relative to the origin in simulator
+        self.goal = np.array([0.5 - 0.07, -0.3, 0.15]) + self.offset
         self.subgoal = self.goal + self.offset
-        self.init = np.array([0.5, 0.3])
+        self.init = np.array([0.5, 0.3, 0.15])
         self.dt = 0.5  # time interval in real env
         self.length = 80  # number of steps to take
         self.obst_size = self.obst_sizes[args.env]  # (x/2, y/2)
         self.vels = self.obst_vels[args.env]  # velocity of obstacle
-        self.obst_rel_robot = np.array([[0.5, 0.1], [0.5, -0.1]])  # middle pose relative to robot base
+        self.obst_rel_robot = np.array([[0.5, 0.1, 0.15], [0.5, -0.1, 0.15]])  # middle pose relative to robot base
         self.pos_dif = 0.1
         self.center_x = 0.5 + self.offset[0]
-        self.origin_offset = np.array([0.042, 0.041])
+        self.origin_offset = np.array([0.043, 0.039])
         self.pre_dists = np.array([None, None])
         self.signs = np.array([1, 1])
         # camera set
@@ -57,15 +57,16 @@ class Player:
         self.camera.start()
         # move robot to initial pose
         self.robot.move([0, 0, 0.2])
-        z = self.robot.current_pose()[2]
-        pose = np.append(self.init, z)
+        pose = self.robot.current_pose()[:3]
+        pose[:2] = self.init[:2]
         self.robot.move_to_init(pose)
+        self.gripper.move(0.04)
         input("Enter to lower the gripper.")
-        pose = np.append(self.init, 0.02)
+        pose[2] = 0.0065
         self.robot.move_to_init(pose)
         input("Enter to grasp the object.")
         self.robot.clamp()
-        self.robot.move([0, 0, 0.15])
+        self.robot.move_to_init(self.init)
         input("Enter to start moving.")
 
     def get_obs_distance(self):
@@ -89,14 +90,14 @@ class Player:
     def finish(self):
         self.camera.stop()
         cur_pose = self.robot.current_pose()
-        disp_z = cur_pose[2] - 0.02
+        disp_z = cur_pose[2] - 0.0065
         self.robot.move([0, 0, -disp_z])
         self.robot.release()
 
     def close_to_goal(self, xinit):
         # cur_pos = self.robot.current_pose()[:2]
         goal = self.goal
-        if np.linalg.norm(xinit[:2] - goal[:2], 2) <= 0.05:
+        if np.linalg.norm(xinit[:2] - goal[:2], 2) <= 0.02:
             return True
         return False
 
@@ -104,13 +105,14 @@ class Player:
         xinit = self.init + self.offset
         dists = self.get_obs_distance()
         ob = self.env.reset()
-        print("original obs", ob)
+        # print("original obs", ob)
         ob = self.set_obs(ob, xinit, dists)
         if args.play_policy in ['MPCPolicy']:
             self.policy.set_sub_goal(ob['desired_goal'])
 
         while not self.close_to_goal(xinit):
             # print("xinit: ", xinit)
+            # print('ob', ob)
             t1 = time.time()
             # print("observation", ob["observation"])
             real_actions = self.policy.predict([ob])
@@ -126,12 +128,18 @@ class Player:
             cur_pose = self.robot.current_pose()
             x_init = cur_pose[0] + self.offset[0]
             y_init = cur_pose[1] + self.offset[1]
-            xinit = np.array([x_init, y_init])
+            if self.block_z:
+                z_init = ob['observation'][2]
+            else:
+                z_init = cur_pose[2] + self.offset[2]
+            xinit = np.array([x_init, y_init, z_init])
+            # print("xinit", xinit)
             dists = self.get_obs_distance()
             ob = self.set_obs(ob, xinit, dists)
-            print("time:", time.time() - t1)
-            if self.dt - (time.time() - t1) > 0:
-                time.sleep(self.dt - (time.time() - t1))
+            t2 = time.time() - t1
+            print("time:", t2)
+            if self.dt - t2 > 0:
+                time.sleep(self.dt - t2)
         self.finish()
 
     def set_obs(self, obs, xinit, dists):

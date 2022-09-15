@@ -93,15 +93,16 @@ class MPCControlGoalEnv(VanillaGoalEnv):
     # MPC methods
     # ----------------------------
 
-    def subgoal(self, rl_action: np.ndarray) -> np.ndarray:
+    def subgoal(self, rl_action: np.ndarray, obs) -> np.ndarray:
         action = np.clip(rl_action, self.action_space.low, self.action_space.high)
         pos_ctrl, gripper_ctrl = action[:3], action[3]
 
         pos_ctrl *= 0.05  # limit maximum change in position
-        try:
-            grip_pos = self.sim.data.get_site_xpos('robot0:grip')
-        except:
-            grip_pos = self.sim.data.get_site_xpos('grip_site')
+        # try:
+        #     grip_pos = self.sim.data.get_site_xpos('robot0:grip')
+        # except:
+        #     grip_pos = self.sim.data.get_site_xpos('grip_site')
+        grip_pos = obs['observation'][:3]
 
         sub_goal = grip_pos + pos_ctrl
 
