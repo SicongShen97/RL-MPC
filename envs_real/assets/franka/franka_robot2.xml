@@ -46,7 +46,7 @@
                                         <geom pos="0 0 0.107" quat="0.92388 0 0 -0.382683" class="panda_viz" mesh="hand_viz"/>
                                         <geom pos="0 0 0.107" quat="0.92388 0 0 -0.382683" class="panda_col" mesh="hand_col" mass="0.81909"/>
 <!--                                        <site name='end_effector' pos='0 0 .210' size='0.01' euler='0 0 -0.785398'/>-->
-                                        <body name="eef" pos="0 0 0.265" quat="0.92388 0 0 -0.382683">
+                                        <body name="eef" pos="0 0 0.27" quat="0.92388 0 0 -0.382683">
                                             <site name="grip_site" pos="0 0 0" size="0.005 0.005 0.005" rgba="1 0 0 0.5" type="sphere" group="1"/>
                                             <site name="ee_x" pos="0.1 0 0" size="0.005 .1"  quat="0.707105  0 0.707108 0 " rgba="1 0 0 0" type="cylinder" group="1"/>
                                             <site name="ee_y" pos="0 0.1 0" size="0.005 .1" quat="0.707105 0.707108 0 0" rgba="0 1 0 0" type="cylinder" group="1"/>

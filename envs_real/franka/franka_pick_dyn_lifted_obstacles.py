@@ -50,7 +50,7 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         }
         model_path = MODEL_XML_PATH
         self.further = False
-        self.gripper_extra_height = [0, 0, 0.015]
+        self.gripper_extra_height = [0, 0, 0.017]
         self.block_gripper = True
         self.has_object = True
         self.block_object_in_gripper = True
@@ -67,7 +67,7 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         self.distance_threshold = 0.01
         self.reward_type = reward_type
         self.limit_action = 0.05    # limit maximum change in position
-        self.block_max_z = 0.18 + 0.4
+        self.block_max_z = 0.09 + 0.4
 
         self.field = [1.3, 0.75, 0.6, 0.1, 0.35, 0.2]  # real env
         self.dyn_obstacles_geom_names = ['obstacle:geom', 'obstacle2:geom']
@@ -218,7 +218,7 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         pos_ctrl, gripper_ctrl = action[:3], action[3]
 
         if self.block_gripper:
-            gripper_ctrl = -1
+            gripper_ctrl = -0.01
             # gripper_ctrl = 0
 
         pos_ctrl *= self.limit_action  # limit maximum change in position
@@ -323,8 +323,8 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
 
         if self.block_object_in_gripper:
             # open the gripper to place an object, next applied action will close it
-            self.sim.data.set_joint_qpos('robot0_finger_joint1', 0.01)
-            self.sim.data.set_joint_qpos('robot0_finger_joint2', 0.01)
+            self.sim.data.set_joint_qpos('robot0_finger_joint1', 0.016)
+            self.sim.data.set_joint_qpos('robot0_finger_joint2', 0.016)
 
         # # Randomize start position of object if need.
         if self.has_object:
@@ -390,9 +390,11 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
 
         if self.block_object_in_gripper:
             # place object in the gripper
-            object_xpos2 = self.initial_gripper_xpos[:2]
+            # object_xpos2 = self.initial_gripper_xpos[:2]
+            object_xpos2 = self.initial_gripper_xpos[:3]
             object_qpos2 = self.sim.data.get_joint_qpos('object0:joint')
-            object_qpos2[:2] = object_xpos2
+            # object_qpos2[:2] = object_xpos2
+            object_qpos2[:3] = object_xpos2
             # object_qpos2[2] += 0.015  # lift object a bit
             self.sim.data.set_joint_qpos('object0:joint', object_qpos2)
 

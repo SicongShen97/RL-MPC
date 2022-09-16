@@ -65,7 +65,7 @@ def inequality_constraints(z, p):
     y_o2 = p[13]
 
     grip_w_x = 0.015
-    grip_w_y = 0.02
+    grip_w_y = 0.038
 
     dx_o1 = p[9] + grip_w_x
     dy_o1 = p[10] + grip_w_y
@@ -109,7 +109,7 @@ def generate_pathplanner(create=True, path=''):
     model.ineq = inequality_constraints
 
     model.hu = np.array([+np.inf, +np.inf])
-    model.hl = np.array([1.0, 0.025 + 0.035])
+    model.hl = np.array([1.0, 0.025 + 0.04])
 
     # Inequality constraints
     #                   [ dx,   dy,    dz,     s,        x,       y,     z]
@@ -134,23 +134,23 @@ def generate_pathplanner(create=True, path=''):
 
 def main():
     # generate code for estimator
-    model, solver, codeoptions = generate_pathplanner(create=False)
+    model, solver, codeoptions = generate_pathplanner(create=True)
     args = get_args()
     camera = Camera()
     camera.start()
     # Simulation
     # ----------
     # Variables for storing simulation data
-    goal = np.array([0.57 + 0.8, -0.3 + 0.75, 0.4])  # relative to robot base [0.5, -0.3]
+    goal = np.array([0.0 + 0.5 + 0.8, -0.3 + 0.75, 0.4])  # relative to robot base [0.5, -0.3]
     t = 0
     dt = 0.5   # real env set
-    vels = np.array([0.0, 0.03])   # real env set
+    vels = np.array([0.02, 0.03])   # real env set
     pos_dif = 0.1  # real env set
     center_x = 0.5 + 0.8  # real env set
     # dyn pos from camera
     frame_init = camera.get_frame()
     dists, _ = camera.get_distance(frame_init, add_to_frame=False)
-    offsets = np.array([0.043, 0.04])
+    offsets = np.array([0.041, 0.04])
     dists -= offsets  # relative to origin
     dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8,  0.1 + 0.75, 0.4, 0.045, 0.017, 0.015],
                               [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.4, 0.015, 0.017, 0.015]])

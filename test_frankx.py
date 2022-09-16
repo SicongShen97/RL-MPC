@@ -25,12 +25,18 @@ cur_pose = robot.current_pose()
 print(cur_pose)
 # disp_z = cur_pose - 0.02
 # robot.move([0, 0, -0.01])
-robot.gripper.move(0.03)
+robot.gripper.move(0.05)
 
 # pose = [0.45, 0.35, 0.07]
-robot.move_to_init([0.5, 0.3, 0.2])
-for _ in range(10):
-    robot.move([0, -0.05, 0])
+robot.move_to_init([0.5, 0.3, 0.065])
+input('to clamp')
+robot.clamp()
+robot.move([0, 0, 0.09])
+robot.move_to_init([0.5, 0.1, 0.065 + 0.09])
+input('to release')
+robot.release()
+# for _ in range(10):
+#     robot.move([0, -0.05, 0])
 # robot.release()
 # init = np.array([0.5, 0.3])
 # robot.move([0, 0, 0.2])

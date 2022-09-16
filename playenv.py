@@ -5,18 +5,18 @@ from policies import make_policy
 #
 register_custom_envs()
 args = get_args()
-args.env = "FrankaPickDynObstacles-v1"
+args.env = "FrankaPickDynLiftedObstacles-v1"
 # args.env_n_substeps = 100
-args.play_path = "log_real/simple_net-ddpg2-FrankaPickDynObstacles-v1-hgg"
-args.play_epoch = '19'
-args.play_policy = "RLPolicy"
+# args.play_path = "log_real/simple_net-ddpg2-FrankaPickDynObstacles-v2-hgg"
+# args.play_epoch = '19'
+# args.play_policy = "RLPolicy"
 env = make_env(args)
 import time
 # env = FrankaFetchPickDynSqrObstacleEnv()
-policy = make_policy(args)
-policy.set_envs(envs=[env])
+# policy = make_policy(args)
+# policy.set_envs(envs=[env])
 obs = env.reset()
-env.env.env.env.goal[0] = -0.1 + 0.5 + 0.8
+# env.env.env.env.goal[0] = 0.07 + 0.5 + 0.8
 # print(obs['achieved_goal'])
 # print(obs["observation"])
 
@@ -27,12 +27,12 @@ pre_grip = None
 t1 = time.time()
 for i in range(1000):
     # print(env.env)
-    obs['desired_goal'][0] = -0.1 + 0.5 + 0.8
-    print(obs)
-    actions, infos = policy.predict(obs=[obs])
+    obs['desired_goal'][0] = 0.07 + 0.5 + 0.8
+    print(obs['observation'])
+    # actions, infos = policy.predict(obs=[obs])
     # print(actions)
-    action = actions[0]
-    action = [0, -0, 0, 0]
+    # action = actions[0]
+    action = [0, -0.0, 0.02, 0]
     # print("action:", action)
     # action[0] = 1*(-1)**i
     # id = env.sim.model.geom_name2id("obstacle:geom")  # id 36
@@ -43,11 +43,11 @@ for i in range(1000):
     #         print("collide")
     #         break
     obs, reward, done, info = env.step(action)
-    print(obs['object_dis'])
-    if info['Success'] == 1.0:
-        print(i)
-        break
-    print(info['Collisions'])
+    # print(obs['object_dis'])
+    # if info['Success'] == 1.0:
+    #     print(i)
+    #     break
+    # print(info['Collisions'])
     env.render()
 # print(obs["observation"])
     # time.sleep(1)

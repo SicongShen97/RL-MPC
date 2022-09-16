@@ -32,6 +32,7 @@ class MPCDebugPlot:
     safe_areas = {
         'FrankaPickDynSqrObstacles-v1': [0.0, 0.005, 0],
         'FrankaPickDynObstacles-v1': [0.0, 0.005, 0],
+        'FrankaPickDynLiftedObstacles-v1': [0.0, 0.014, 0],
 
         'FetchPickDynObstaclesEnv-v2': [[0.05, 0.03], [0.05, 0.048], [0.05, 0.05]],
         'FetchPickDynLiftedObstaclesEnv-v1': [[0.05, 0.055 + 0.02, 0.055], [0.05, 0.05 + 0.02, 0.05], [0.05, 0.02, 0.02]],
@@ -41,13 +42,12 @@ class MPCDebugPlot:
 
     obstacle_colors = {
         'FrankaPickDynSqrObstacles-v1': ['#416ab6', '#416ab6'],
-
+        'FrankaPickDynLiftedObstacles-v1': ['#416ab6', '#416ab6', '#5aa9a2'],
 
         'FetchPickDynObstaclesEnv-v1': ['#416ab6', '#5aa9a2'],
         'FetchPickDynObstaclesEnv-v2': ['#416ab6', '#416ab6'],
         'FetchPickDynLiftedObstaclesEnv-v1': ['#416ab6', '#416ab6', '#5aa9a2'],
         'FetchPickDynObstaclesMaxEnv-v1': ['#416ab6', '#5aa9a2'],
-
         'FrankaFetchPickDynSqrObstacle-v1': ['#416ab6', '#416ab6'],
     }
 
@@ -57,7 +57,7 @@ class MPCDebugPlot:
         self.err = np.zeros(sim_length)  # errors
         self.sim_length = sim_length
         self.model = model
-        self.obj = [0.015, 0.015]
+        self.obj = [0.015, 0.015, 0.017]
         # self.obstacle_color = '#416ab6'
         self.setup(args.env)
 
@@ -82,7 +82,7 @@ class MPCDebugPlot:
         fig = plt.figure()
         fig.set_size_inches(9, 9, forward=True)
         plt.clf()
-        gs = GridSpec(4, 2, figure=fig)
+        gs = GridSpec(5, 2, figure=fig)
 
         # Plot trajectory
         ax_pos = fig.add_subplot(gs[:, 0])
@@ -168,6 +168,27 @@ class MPCDebugPlot:
         ax_Z.plot(range(0, k + 1), x[2, 0:k + 1], '-b')
         ax_Z.plot(range(k, k + model.N), pred_x[2, :], 'g-')
 
+        # Plot trajectory
+        ax_posZ = fig.add_subplot(gs[4, 1])
+        plt.plot(parameters[0][1], parameters[0][2], 'kx')  # subgoal
+        plt.title('Position', fontsize=16)
+        # plt.axis('equal')
+        plt.xlim([0.4, 1.1])
+        plt.ylim([0.4, 0.55])
+        plt.xlabel('y-coordinate', fontsize=16)
+        plt.ylabel('z-coordinate', fontsize=16)
+        ax_posZ.plot(x[1, 0], x[2, 0], 'b-')
+        ax_posZ.plot(pred_x[1, :], pred_x[2, :], 'g-')
+
+        for i in range(len(real_obstacles)):
+            obst = real_obstacles[i]
+            bbox = (obst[1], obst[2], obst[4] * 2, obst[5] * 2)
+            rectangle(bbox, fill=True, linestyle=":", edgecolor='red', color=self.obstacle_color[i])
+
+        # for i in range(len(safe_areas)):
+        #     obst = safe_areas[i]
+        #     bbox = (obst[1], obst[2], obst[4] * 2, obst[5] * 2)
+        #     rectangle(bbox, fill=False, linestyle=":", edgecolor='red')
 
         plt.tight_layout()
         # Make plot fullscreen. Comment out if platform dependent errors occur.
@@ -230,6 +251,9 @@ class MPCDebugPlot:
         ax_list[4].get_lines().pop(-1).remove()  # remove old prediction z
         ax_list[4].get_lines().pop(-1).remove()  # remove old z
 
+        ax_list[5].get_lines().pop(-1).remove()  # remove old prediction of trajectory
+        ax_list[5].get_lines().pop(-1).remove()  # remove old trajectory
+
         # Plot new data in plot
         ax_list[0].plot(x[0, 0:k + 2], x[1, 0:k + 2], '-b')  # plot new trajectory
         ax_list[0].plot(pred_x[0, 1:], pred_x[1, 1:], 'g-')  # plot new prediction of trajectory
@@ -247,6 +271,10 @@ class MPCDebugPlot:
 
         ax_list[4].plot(range(0, k + 1), x[2, 0:k + 1], '-b')  # plot new z
         ax_list[4].plot(range(k, k + model.N), pred_x[2, :], 'g-')  # plot new prediction of z
+
+        ax_list[5].plot(params[1], params[2], 'kx')  # plot new subgoal position
+        ax_list[5].plot(x[1, 0:k + 2], x[2, 0:k + 2], '-b')  # plot new trajectory
+        ax_list[5].plot(pred_x[1, 1:], pred_x[2, 1:], 'g-')  # plot new prediction of trajectory
 
     def show(self):
         plt.show()

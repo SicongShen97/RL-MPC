@@ -20,9 +20,12 @@ class Player:
     mpc_policy = False
 
     obst_sizes = {"FrankaPickDynSqrObstacles-v1": np.array([[0.015, 0.017, 0.015], [0.015, 0.017, 0.015]]),
-                  "FrankaPickDynObstacles-v1": np.array([[0.045, 0.017, 0.015], [0.015, 0.017, 0.015]])}
+                  "FrankaPickDynObstacles-v1": np.array([[0.045, 0.017, 0.015], [0.015, 0.017, 0.015]]),
+                  "FrankaPickDynObstacles-v2": np.array([[0.045, 0.017, 0.015], [0.015, 0.017, 0.015]])}
+
     obst_vels = {"FrankaPickDynSqrObstacles-v1": np.array([0.02, 0.03]),
-                 "FrankaPickDynObstacles-v1": np.array([0.0, 0.03])}
+                 "FrankaPickDynObstacles-v1": np.array([0.0, 0.03]),
+                 "FrankaPickDynObstacles-v2": np.array([0.02, 0.03])}
 
     def __init__(self, args):
         # mujoco env set
@@ -46,7 +49,7 @@ class Player:
         self.obst_rel_robot = np.array([[0.5, 0.1, 0.15], [0.5, -0.1, 0.15]])  # middle pose relative to robot base
         self.pos_dif = 0.1
         self.center_x = 0.5 + self.offset[0]
-        self.origin_offset = np.array([0.043, 0.039])
+        self.origin_offset = np.array([0.042, 0.038])
         self.pre_dists = np.array([None, None])
         self.signs = np.array([1, 1])
         # camera set
@@ -60,7 +63,7 @@ class Player:
         pose = self.robot.current_pose()[:3]
         pose[:2] = self.init[:2]
         self.robot.move_to_init(pose)
-        self.gripper.move(0.04)
+        self.gripper.move(0.05)
         input("Enter to lower the gripper.")
         pose[2] = 0.0065
         self.robot.move_to_init(pose)

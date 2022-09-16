@@ -73,20 +73,27 @@ def inequality_constraints(z, p):
     z_o3 = p[20]
 
     grip_w_x = 0.015
-    grip_w_y = 0.015 + 0.005
-    grip_w_z = 0.005
+    grip_w_y = 0.015 + 0.014
+    grip_w_z = 0.017
 
-    dx_o1 = p[9] + grip_w_x + 0.0
-    dy_o1 = p[10] + grip_w_y + 0.02
+    dx_o1 = p[9] + grip_w_x
+    dy_o1 = p[10] + grip_w_y
     dz_o1 = p[11] + grip_w_z
+    xp1 = casadi.fabs(p_x - x_o1) / dx_o1
+    yp1 = casadi.fabs(p_y - y_o1) / dy_o1
+    zp1 = casadi.fabs(p_z - z_o1) / dz_o1
 
-    xp2 = casadi.fabs(p_x - x_o2) / dx_o2
-    yp2 = casadi.fabs(p_y - y_o2) / dy_o2
-    zp2 = casadi.fabs(p_z - z_o2) / dz_o2
+    dx_o3 = p[21] + grip_w_x
+    dy_o3 = p[22] + grip_w_y
+    dz_o3 = p[23] + grip_w_z
+    xp3 = casadi.fabs(p_x - x_o3) / dx_o3
+    yp3 = casadi.fabs(p_y - y_o3) / dy_o3
+    zp3 = casadi.fabs(p_z - z_o3) / dz_o3
 
     return casadi.vertcat(
-        casadi.sqrt((p_x - x_o1) ** 2 + (p_y - y_o1) ** 2) + z[3],
-        casadi.sqrt((p_x - x_o2) ** 2 + (p_y - y_o2) ** 2) + z[3],
+        S(6, xp1, yp1, zp1) + z[3],  # obstacle1, moving
+        casadi.sqrt((p_x - x_o2) ** 2 + (p_y - y_o2) ** 2 + (p_z - z_o2) ** 2) + z[3],  # obstacle2 sqr
+        S(6, xp3, yp3, zp3) + z[3]  # obstacle3, still
     )
 
 
@@ -103,8 +110,8 @@ def generate_pathplanner(create=True, path=''):
     # z = [dx, dy, dz, s, x, y, z]
     model.nvar = 7  # number of variables
     model.neq = 3  # number of equality constraints
-    model.nh = 2    # number of nonlinear inequality constraints
-    model.npar = 6 + 6*2  # number of runtime parameters
+    model.nh = 3    # number of nonlinear inequality constraints
+    model.npar = 6 + 6 * 3  # number of runtime parameters
 
     model.objective = objective
     model.objectiveN = objectiveN
@@ -119,8 +126,8 @@ def generate_pathplanner(create=True, path=''):
     # inequality
     model.ineq = inequality_constraints
 
-    model.hu = np.array([+np.inf, +np.inf])
-    model.hl = np.array([0.025 + 0.035, 0.025 + 0.035])
+    model.hu = np.array([+np.inf, +np.inf, +np.inf])
+    model.hl = np.array([1, 0.025 + 0.035, 1])
 
     # Inequality constraints
     #                   [ dx,   dy,    dz,     s,        x,       y,     z]
@@ -131,14 +138,14 @@ def generate_pathplanner(create=True, path=''):
     # -----------------
 
     # Set solver options
-    codeoptions = forcespro.CodeOptions('FrankaFORCESNLPsolver_dyn_sqr_obsts')
+    codeoptions = forcespro.CodeOptions('FrankaFORCESNLPsolver_dyn_lifted_obsts')
     codeoptions.printlevel = 0
     codeoptions.overwrite = 1
 
     if create:
         solver = model.generate_solver(options=codeoptions)
     else:
-        solver = forcespro.nlp.Solver.from_directory(path + "FrankaFORCESNLPsolver_dyn_sqr_obsts")
+        solver = forcespro.nlp.Solver.from_directory(path + "FrankaFORCESNLPsolver_dyn_lifted_obsts")
 
     return model, solver, codeoptions
 
@@ -147,15 +154,16 @@ def main():
     # generate code for estimator
     model, solver, codeoptions = generate_pathplanner(create=False)
     args = get_args()
+    args.env = 'FrankaPickDynLiftedObstacles-v1'
     # camera = Camera()
     # camera.start()
     # Simulation
     # ----------
     # Variables for storing simulation data
-    goal = np.array([0.5 + 0.8, -0.3 + 0.75, 0.4])  # relative to robot base [0.5, -0.3]
+    goal = np.array([0.5 + 0.8, -0.3 + 0.75, 0.09 + 0.4])  # relative to robot base [0.5, -0.3, 0.4]
     t = 0
     dt = 0.5   # real env set
-    vels = np.array([0.02, 0.03])   # real env set
+    vels = np.array([0.02, 0.03, 0])   # real env set
     pos_dif = 0.1  # real env set
     center_x = 0.5 + 0.8  # real env set
     # dyn pos from camera
@@ -165,21 +173,23 @@ def main():
     # dists -= offsets  # relative to origin
     # dyn_obstacles = np.array([[dists[0] - pos_dif + 0.5 + 0.8,  0.1 + 0.75, 0.015, 0.017],
     #                           [dists[1] - pos_dif + 0.5 + 0.8, -0.1 + 0.75, 0.015, 0.017]])
-    dyn_obstacles = np.array([[0 + 0.5 + 0.8,  0.1 + 0.75, 0.4, 0.015, 0.017, 0.015],
-                              [0 + 0.5 + 0.8, -0.1 + 0.75, 0.4, 0.015, 0.017, 0.015]])
+    dyn_obstacles = np.array([[0 + 0.5 + 0.8,  0.1 + 0.75, 0.02 + 0.4, 0.045, 0.017, 0.02],
+                              [0 + 0.5 + 0.8, -0.1 + 0.75, 0.02 + 0.45, 0.015, 0.017, 0.02],
+                              [0 + 0.5 + 0.8, -0.1 + 0.75, 0.025 + 0.4, 0.24, 0.03, 0.025]])
+
     sim_length = 180
 
     # Set runtime parameters
     # ----------
     # Set initial state value
-    xinit = np.array([0.5 + 0.8, 0.3 + 0.75, 0.4])   # relative to robot base [0.5, 0.3]
+    xinit = np.array([0.5 + 0.8, 0.3 + 0.75, 0.417])   # relative to robot base [0.5, 0.3, 0]
     x0i = np.zeros(7)
     x0i[4:7] = xinit
     x0 = np.reshape(x0i, (7, 1))
     pred = np.repeat(x0, model.N, axis=1)  # first prediction corresponds to initial guess
     parameters = extract_parameters(goal, goal, dt, model.N, dyn_obstacles, vels, pos_dif, center_x)
     obs = make_obs(parameters[0])  # simulate real obstacle positions
-
+    # print('obs', obs)
     problem = {"x0": pred,
                "xinit": xinit}
 
@@ -188,12 +198,12 @@ def main():
 
     sim_timestep = 0
     pre_dists = np.array([None, None])
-    signs = np.array([1, 1])
+    signs = np.array([1, 1, 1])
     # input("Start to move obstacles.")
     for k in range(sim_length):
         t1 = time.time()
-        if k%10 == 9:
-            signs *= -1
+        # if k%10 == 9:
+        #     signs *= -1
         # dyn pos from camera
         # frame = camera.get_frame()
         # dists, _ = camera.get_distance(frame, add_to_frame=False)

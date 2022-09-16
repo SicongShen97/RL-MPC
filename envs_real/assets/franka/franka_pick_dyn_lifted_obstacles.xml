@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mujoco>
 	<compiler angle="radian" coordinate="local" meshdir="" texturedir="../textures"></compiler>
-	<option timestep="0.002">
+	<option timestep="0.002" gravity="0 0 -0.01">
 		<flag warmstart="enable"/>
 	</option>
 	<size nuser_actuator="5"/>
@@ -72,7 +72,7 @@
 
 		<body name="object0" pos="0.025 0.025 0.025">
 			<joint name="object0:joint" type="free" damping="0.01"></joint>
-			<geom size="0.015 0.015 0.015" type="box" condim="3" name="object0" material="block_mat" mass="0.2"></geom>
+			<geom size="0.015 0.015 0.017" type="box" condim="3" name="object0" material="block_mat" mass="0.2"></geom>
 			<site name="object0" pos="0 0 0" size="0.01 0.01 0.01" rgba="1 0 0 1" type="sphere"></site>
 		</body>
 
