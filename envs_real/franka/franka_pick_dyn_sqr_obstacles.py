@@ -62,7 +62,7 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         # self.target_range_x = 0.2  # entire table: 0.125
         # self.target_range_y = 0.02  # entire table: 0.175
         self.target_range = 0.005  # min target range for both axis
-        self.target_range_x = 0.05
+        self.target_range_x = 0.1
         self.target_range_y = 0.02
         self.distance_threshold = 0.01
         self.reward_type = reward_type
@@ -340,7 +340,7 @@ class FrankaPickDynSqrObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         goal = self.target_center.copy()
 
         # goal[1] += self.np_random.uniform(-self.target_range_y, self.target_range_y)
-        # goal[0] += self.np_random.uniform(-self.target_range_x, self.target_range_x)
+        goal[0] += self.np_random.uniform(-self.target_range_x, self.target_range_x)
         goal[2] += 0.02
 
         return goal.copy()

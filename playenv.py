@@ -28,11 +28,11 @@ t1 = time.time()
 for i in range(1000):
     # print(env.env)
     obs['desired_goal'][0] = 0.07 + 0.5 + 0.8
-    print(obs['observation'])
+    print(obs['real_obstacle_info'])
     # actions, infos = policy.predict(obs=[obs])
     # print(actions)
     # action = actions[0]
-    action = [0, -0.0, 0.02, 0]
+    action = [0, -0.02, 0.02, 0]
     # print("action:", action)
     # action[0] = 1*(-1)**i
     # id = env.sim.model.geom_name2id("obstacle:geom")  # id 36

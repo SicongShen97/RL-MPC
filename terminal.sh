@@ -1,3 +1,4 @@
+#  play
 python play_real.py --env FrankaPickDynSqrObstacles-v1 \
 --play_path log_real/ddpg2-FrankaPickDynSqrObstacles-v1-hgg/ \
 --goal mpc --play_policy RLPolicy
@@ -26,6 +27,8 @@ python play_real.py --env FrankaPickDynObstacles-v2 --play_epoch 19 \
 
 # train
 python train_real.py --env FrankaPickDynObstacles-v1 --tag 'simple_net'
+
+python train_real.py --env FrankaPickDynLiftedObstacles-v1 --tag 'simple_net'
 
 # mpc
 python
