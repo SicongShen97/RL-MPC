@@ -1,11 +1,11 @@
-from envs_real import register_custom_envs
-from env_ext_real import make_env
-from common_real import get_args
+from envs import register_custom_envs
+from env_ext import make_env
+from common import get_args
 from policies import make_policy
-
+#
 register_custom_envs()
 args = get_args()
-args.env = "FrankaPickDynLiftedObstacles-v1"
+args.env = "FetchPickDynLiftedObstaclesEnv-v1"
 # args.env_n_substeps = 100
 # args.play_path = "log_real/simple_net-ddpg2-FrankaPickDynObstacles-v2-hgg"
 # args.play_epoch = '19'
@@ -21,7 +21,7 @@ obs = env.reset()
 # print(obs["observation"])
 
 # action = [0, -0.5, 0., 0]
-action = [0, -0, 0, 0]
+# action = [0, -0, 0, 0]
 pre_obs = None
 pre_grip = None
 t1 = time.time()
@@ -32,7 +32,7 @@ for i in range(1000):
     # actions, infos = policy.predict(obs=[obs])
     # print(actions)
     # action = actions[0]
-    action = [0, -0.1, 0.1, 0]
+    action = [0, -0.2, 0.2, -1]
     # print("action:", action)
     # action[0] = 1*(-1)**i
     # id = env.sim.model.geom_name2id("obstacle:geom")  # id 36
@@ -47,7 +47,7 @@ for i in range(1000):
     # if info['Success'] == 1.0:
     #     print(i)
     #     break
-    print(info['Collisions'])
+    # print(info['Collisions'])
     env.render()
 # print(obs["observation"])
     # time.sleep(1)

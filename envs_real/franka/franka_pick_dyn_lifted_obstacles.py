@@ -50,7 +50,7 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         }
         model_path = MODEL_XML_PATH
         self.further = False
-        self.gripper_extra_height = [0, 0, 0.017]
+        self.gripper_extra_height = [0, 0, 0.003]
         self.block_gripper = True
         self.has_object = True
         self.block_object_in_gripper = True
@@ -343,7 +343,6 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
         self.current_obstacle_shifts = self.np_random.uniform(0, 1.0, size=2)
         self.current_obstacle_vels = directions * self.np_random.uniform(self.vel_lims[0], self.vel_lims[1], size=2)
         self._move_obstacles(t=self.sim.get_state().time)  # move obstacles to the initial positions
-
         self.sim.forward()
         return True
 
@@ -390,12 +389,12 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
 
         if self.block_object_in_gripper:
             # place object in the gripper
-            # object_xpos2 = self.initial_gripper_xpos[:2]
-            object_xpos2 = self.initial_gripper_xpos[:3]
+            object_xpos2 = self.initial_gripper_xpos[:2]
+            # object_xpos2 = self.initial_gripper_xpos[:3]
             object_qpos2 = self.sim.data.get_joint_qpos('object0:joint')
-            # object_qpos2[:2] = object_xpos2
-            object_qpos2[:3] = object_xpos2
-            # object_qpos2[2] += 0.015  # lift object a bit
+            object_qpos2[:2] = object_xpos2
+            # object_qpos2[:3] = object_xpos2
+            object_qpos2[2] = 0.4 + 0.003  # lift object a bit
             self.sim.data.set_joint_qpos('object0:joint', object_qpos2)
 
         site_id = self.sim.model.site_name2id('init_1')
