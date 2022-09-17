@@ -351,7 +351,7 @@ class FrankaPickDynLiftedObstaclesEnv(robot_env.RobotEnv, gym.utils.EzPickle):
 
         # goal[1] += self.np_random.uniform(-self.target_range_y, self.target_range_y)
         goal[0] += self.np_random.uniform(-self.target_range_x, self.target_range_x)
-        goal[2] += 0.02
+        goal[2] += 0.09
 
         return goal.copy()
 

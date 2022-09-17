@@ -21,11 +21,13 @@ class Player:
 
     obst_sizes = {"FrankaPickDynSqrObstacles-v1": np.array([[0.015, 0.017, 0.015], [0.015, 0.017, 0.015]]),
                   "FrankaPickDynObstacles-v1": np.array([[0.045, 0.017, 0.015], [0.015, 0.017, 0.015]]),
-                  "FrankaPickDynObstacles-v2": np.array([[0.045, 0.017, 0.015], [0.015, 0.017, 0.015]])}
+                  "FrankaPickDynObstacles-v2": np.array([[0.045, 0.017, 0.015], [0.015, 0.017, 0.015]]),
+                  "FrankaPickDynLiftedObstacles-v1": np.array([[0.045, 0.017, 0.02], [0.015, 0.017, 0.02], [0.24, 0.03, 0.025]])}
 
     obst_vels = {"FrankaPickDynSqrObstacles-v1": np.array([0.02, 0.03]),
                  "FrankaPickDynObstacles-v1": np.array([0.0, 0.03]),
-                 "FrankaPickDynObstacles-v2": np.array([0.02, 0.03])}
+                 "FrankaPickDynObstacles-v2": np.array([0.02, 0.03]),
+                 "FrankaPickDynLiftedObstacles-v1": np.array[0.02, 0.03, 0.0]}
 
     def __init__(self, args):
         # mujoco env set
@@ -38,20 +40,29 @@ class Player:
         self.gripper = self.robot.gripper
         self.block_z = False if args.env == 'FrankaPickDynLiftedObstacles-v1' else True
         # real env set
-        self.offset = np.array([0.8, 0.75, 0.415 - 0.15])  # robot base relative to the origin in simulator
-        self.goal = np.array([0.5 - 0.07, -0.3, 0.15]) + self.offset
-        self.subgoal = self.goal + self.offset
-        self.init = np.array([0.5, 0.3, 0.15])
+        self.offset = np.array([0.8, 0.75, 0.4])  # robot base relative to the origin in simulator
+        self.goal = np.array([0.5 - 0.07, -0.3, 0.0]) + self.offset
+        # self.subgoal = self.goal
+        if self.block_z:
+            self.init = np.array([0.5, 0.3, 0.065 + 0.09])  # for FrankaPickDynLiftedObstacles-v1
+            self.obst_rel_robot = np.array([[0.5, 0.1, 0.02], [0.5, -0.1, 0.05 + 0.02],
+                                            [0.5, -0.1, 0.025]])  # middle pose relative to robot base
+            self.pre_dists = np.array([None, None, None])
+            self.signs = np.array([1, 1, 1])
+            self.z_offset = 0.065 + 0.09 - 0.4 - 0.003
+        else:
+            self.init = np.array([0.5, 0.3, 0.15])
+            self.obst_rel_robot = np.array([[0.5, 0.1, 0.15], [0.5, -0.1, 0.15]])  # middle pose relative to robot base
+            self.pre_dists = np.array([None, None])
+            self.signs = np.array([1, 1])
         self.dt = 0.5  # time interval in real env
         self.length = 80  # number of steps to take
         self.obst_size = self.obst_sizes[args.env]  # (x/2, y/2)
         self.vels = self.obst_vels[args.env]  # velocity of obstacle
-        self.obst_rel_robot = np.array([[0.5, 0.1, 0.15], [0.5, -0.1, 0.15]])  # middle pose relative to robot base
         self.pos_dif = 0.1
         self.center_x = 0.5 + self.offset[0]
         self.origin_offset = np.array([0.042, 0.038])
-        self.pre_dists = np.array([None, None])
-        self.signs = np.array([1, 1])
+
         # camera set
         self.camera = Camera()
 
@@ -65,7 +76,10 @@ class Player:
         self.robot.move_to_init(pose)
         self.gripper.move(0.05)
         input("Enter to lower the gripper.")
-        pose[2] = 0.0065
+        if self.block_z:
+            pose[2] = 0.065
+        else:
+            pose[2] = 0.0065
         self.robot.move_to_init(pose)
         input("Enter to grasp the object.")
         self.robot.clamp()
@@ -93,7 +107,10 @@ class Player:
     def finish(self):
         self.camera.stop()
         cur_pose = self.robot.current_pose()
-        disp_z = cur_pose[2] - 0.0065
+        if self.block_z:
+            disp_z = cur_pose[2] - 0.065
+        else:
+            disp_z = cur_pose[2] - 0.0065
         self.robot.move([0, 0, -disp_z])
         self.robot.release()
 
@@ -150,6 +167,7 @@ class Player:
         obs["observation"][3:5] = xinit[:2]
 
         dyn_obstacles = self.get_obs_pose(dists)
+
         obs["observation"][9:11] = dyn_obstacles[0, :2]
         obs["observation"][15:17] = dyn_obstacles[1, :2]
         obs["real_obstacle_info"][0, :2] = dyn_obstacles[0, :2]
@@ -167,6 +185,11 @@ class Player:
 
         goal = self.goal
         obs["desired_goal"][:2] = goal[:2]
+
+        if self.block_z:
+            obs["observation"][2] = xinit[2]
+            obs["observation"][3:5] = xinit[:2]
+            dyn_obstacles.append(np.append(self.obst_rel_robot[2]+self.offset, self.obst_size[2]))
 
         obs["dt"] = self.dt
         obs["pos_dif"] = self.pos_dif
