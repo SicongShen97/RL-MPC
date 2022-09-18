@@ -47,14 +47,13 @@ class Player:
             self.init = np.array([0.5, 0.3, 0.065 + 0.09])  # for FrankaPickDynLiftedObstacles-v1
             self.obst_rel_robot = np.array([[0.5, 0.1, 0.02], [0.5, -0.1, 0.05 + 0.02],
                                             [0.5, -0.1, 0.025]])  # middle pose relative to robot base
-            self.pre_dists = np.array([None, None, None])
-            self.signs = np.array([1, 1, 1])
-            self.z_offset = 0.065 + 0.09 - 0.4 - 0.003
+            self.z_offset = 0.00 - 0.065 - 0.09
         else:
             self.init = np.array([0.5, 0.3, 0.15])
             self.obst_rel_robot = np.array([[0.5, 0.1, 0.15], [0.5, -0.1, 0.15]])  # middle pose relative to robot base
-            self.pre_dists = np.array([None, None])
-            self.signs = np.array([1, 1])
+
+        self.pre_dists = np.array([None, None])
+        self.signs = np.array([1, 1])
         self.dt = 0.5  # time interval in real env
         self.length = 80  # number of steps to take
         self.obst_size = self.obst_sizes[args.env]  # (x/2, y/2)
@@ -187,9 +186,9 @@ class Player:
         obs["desired_goal"][:2] = goal[:2]
 
         if self.block_z:
-            obs["observation"][2] = xinit[2]
-            obs["observation"][3:5] = xinit[:2]
-            dyn_obstacles.append(np.append(self.obst_rel_robot[2]+self.offset, self.obst_size[2]))
+            obs["observation"][2] = xinit[2] + self.z_offset
+            obs["observation"][5] = xinit[2] + self.z_offset
+
 
         obs["dt"] = self.dt
         obs["pos_dif"] = self.pos_dif

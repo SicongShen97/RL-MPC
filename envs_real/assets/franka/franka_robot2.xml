@@ -64,7 +64,7 @@
                                                 <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
 <!--                                                <inertial pos="0 0 0" quat="0 0 0 1" mass="0.2" diaginertia="0.001 0.001 0.001" />-->
 <!--                                                <geom size="0.008 0.004 0.035" pos="0 -0.005 0.015" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.01" conaffinity="1" contype="1" name="finger1_pad_collision"/>-->
-                                                <geom size="0.008 0.004 0.035" pos="0 -0.005 0.015" quat="0 0 0 1" type="box" material="robot0:gripper_finger_mat" condim="4" friction="1 0.05 0.01" name="finger1_pad_collision"/>
+                                                <geom size="0.008 0.004 0.035" pos="0 -0.005 0.015" quat="0 0 0 1" type="box" material="robot0:gripper_finger_mat" condim="4" friction="1 0.05 0.05" name="finger1_pad_collision"/>
                                             </body>
                                         </body>
                                         <body name="panda0_rightfinger" pos="0 0 0.16544" quat="0.92388 0 0 -0.382683">
@@ -77,7 +77,7 @@
                                                 <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
 <!--                                                <inertial pos="0 0 0" quat="0 0 0 1" mass="0.2" diaginertia="0.001 0.001 0.001" />-->
 <!--                                                <geom size="0.008 0.004 0.035" pos="0 0.005 0.015" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.01" conaffinity="1" contype="1" name="finger2_pad_collision"/>-->
-                                                <geom size="0.008 0.004 0.035" pos="0 0.005 0.015" quat="0 0 0 1" type="box" material="robot0:gripper_finger_mat" condim="4" friction="1 0.05 0.01" name="finger2_pad_collision"/>
+                                                <geom size="0.008 0.004 0.035" pos="0 0.005 0.015" quat="0 0 0 1" type="box" material="robot0:gripper_finger_mat" condim="4" friction="1 0.05 0.05" name="finger2_pad_collision"/>
                                             </body>
                                         </body>
                                     </body>

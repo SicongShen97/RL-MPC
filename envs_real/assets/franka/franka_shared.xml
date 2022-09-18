@@ -115,8 +115,8 @@
     <actuator>
 <!--		<position ctrllimited="true" ctrlrange="0 0.04" joint='robot0_finger_joint1' kp="1000" name="robot0:l_gripper_finger_joint" user="1"></position>-->
 <!--		<position ctrllimited="true" ctrlrange="0 0.2" joint="robot0_finger_joint2" kp="1000" name="robot0:r_gripper_finger_joint" user="1"></position>-->
-        <position ctrllimited="true" ctrlrange="0.0 0.04" joint="robot0_finger_joint1" kp="5000" name="robot0_l_gripper_finger_joint" forcelimited="true" forcerange="-100 100"/>
-        <position ctrllimited="true" ctrlrange="0.0 0.04" joint="robot0_finger_joint2" kp="5000" name="robot0_r_gripper_finger_joint" forcelimited="true" forcerange="-100 100"/>
+        <position ctrllimited="true" ctrlrange="0.0 0.04" joint="robot0_finger_joint1" kp="50000" name="robot0_l_gripper_finger_joint" forcelimited="true" forcerange="-100 100"/>
+        <position ctrllimited="true" ctrlrange="0.0 0.04" joint="robot0_finger_joint2" kp="50000" name="robot0_r_gripper_finger_joint" forcelimited="true" forcerange="-100 100"/>
     </actuator>
 
     <contact>
